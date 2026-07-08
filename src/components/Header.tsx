@@ -1,6 +1,6 @@
 import { Link } from "react-router-dom"
 import { Button } from "@/components/ui/button"
-import { MapPin, Menu, X } from "lucide-react"
+import { MapPin, Menu, Search, X } from "lucide-react"
 import { useState } from "react"
 
 export function Header() {
@@ -18,12 +18,24 @@ export function Header() {
             </div>
           </Link>
 
-          <div className="hidden items-center gap-2 rounded-full border border-border bg-card px-3 py-2 text-sm font-medium text-ink-soft shadow-card md:flex">
+          <div className="hidden items-center gap-2 rounded-full border border-border bg-card px-3 py-2 text-sm font-medium text-ink-soft shadow-card lg:flex">
             <MapPin className="h-4 w-4 text-primary" />
             <span>Brazzaville</span>
           </div>
 
-          <nav className="hidden items-center gap-1 rounded-full border border-border bg-card p-1 shadow-card md:flex">
+          <form className="hidden min-w-0 flex-1 max-w-sm items-center rounded-full border border-border bg-card p-1 shadow-card md:flex">
+            <Search className="ml-3 h-4 w-4 shrink-0 text-muted-foreground" />
+            <input
+              type="search"
+              placeholder="Rechercher"
+              className="min-w-0 flex-1 bg-transparent px-3 text-sm text-ink outline-none placeholder:text-muted-foreground"
+            />
+            <button className="rounded-full gradient-primary px-4 py-2 text-xs font-bold text-primary-foreground shadow-glow">
+              Rechercher
+            </button>
+          </form>
+
+          <nav className="hidden items-center gap-1 rounded-full border border-border bg-card p-1 shadow-card lg:flex">
             <Link to="/promos" className="rounded-full px-4 py-2 text-sm font-semibold text-ink-soft transition hover:bg-secondary hover:text-ink">Promos</Link>
             <Link to="/boutiques" className="rounded-full px-4 py-2 text-sm font-semibold text-ink-soft transition hover:bg-secondary hover:text-ink">Boutiques</Link>
             <Link to="/dashboard" className="rounded-full gradient-primary px-4 py-2 text-sm font-semibold text-primary-foreground shadow-glow">Espace pro</Link>
@@ -39,6 +51,17 @@ export function Header() {
 
       {menuOpen && (
         <div className="md:hidden border-t border-border bg-background px-4 py-4 space-y-3">
+          <form className="flex items-center rounded-full border border-border bg-card p-1 shadow-card">
+            <Search className="ml-3 h-4 w-4 shrink-0 text-muted-foreground" />
+            <input
+              type="search"
+              placeholder="Rechercher"
+              className="min-w-0 flex-1 bg-transparent px-3 text-sm text-ink outline-none placeholder:text-muted-foreground"
+            />
+            <button className="rounded-full gradient-primary px-4 py-2 text-xs font-bold text-primary-foreground">
+              OK
+            </button>
+          </form>
           <Link to="/promos" className="block rounded-full px-4 py-2 text-sm font-semibold text-ink-soft" onClick={() => setMenuOpen(false)}>Promos</Link>
           <Link to="/boutiques" className="block rounded-full px-4 py-2 text-sm font-semibold text-ink-soft" onClick={() => setMenuOpen(false)}>Boutiques</Link>
           <Link to="/dashboard" className="block rounded-full gradient-primary px-4 py-2 text-sm font-semibold text-primary-foreground" onClick={() => setMenuOpen(false)}>Espace pro</Link>
