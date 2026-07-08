@@ -1,4 +1,4 @@
-import { Search, BarChart3, ShoppingBag } from "lucide-react"
+import { Search, Store, TrendingUp } from "lucide-react"
 
 const steps = [
   {
@@ -7,12 +7,12 @@ const steps = [
     description: "Trouvez le produit qui vous intéresse par catégorie, marque ou près de chez vous.",
   },
   {
-    icon: BarChart3,
+    icon: TrendingUp,
     title: "Comparez",
     description: "Comparez les prix des commerces locaux et repérez le meilleur bon plan.",
   },
   {
-    icon: ShoppingBag,
+    icon: Store,
     title: "Achetez",
     description: "Rendez-vous en boutique ou commandez, et profitez de la promo.",
   },
@@ -20,23 +20,23 @@ const steps = [
 
 export function HowItWorks() {
   return (
-    <section className="py-12 sm:py-16">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="text-center mb-12">
-          <h2 className="text-2xl sm:text-3xl font-bold text-gray-900">Comment ça marche</h2>
-          <p className="text-gray-500 mt-2 text-sm">Économisez en 3 étapes</p>
+    <section className="mx-auto max-w-7xl px-4 py-16 lg:px-8">
+      <div>
+        <div className="flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
+          <div>
+            <div className="text-xs font-bold uppercase tracking-widest text-primary">Comment ça marche</div>
+            <h2 className="mt-1 font-display text-3xl font-bold text-ink sm:text-4xl">Économisez en 3 étapes</h2>
+          </div>
         </div>
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-8 max-w-4xl mx-auto">
+        <div className="mt-10 grid gap-4 md:grid-cols-3">
           {steps.map((step, i) => (
-            <div key={step.title} className="text-center">
-              <div className="w-16 h-16 bg-red-50 rounded-2xl flex items-center justify-center mx-auto mb-4 relative">
-                <step.icon className="w-7 h-7 text-red-600" />
-                <div className="absolute -top-2 -right-2 w-6 h-6 bg-red-600 rounded-full flex items-center justify-center text-white text-xs font-bold">
-                  {i + 1}
-                </div>
+            <div key={step.title} className="relative overflow-hidden rounded-3xl border border-border/60 bg-card p-6 shadow-card">
+              <div className="absolute -right-6 -top-6 h-24 w-24 rounded-full gradient-primary opacity-10"></div>
+              <div className="relative grid h-12 w-12 place-items-center rounded-2xl gradient-primary text-primary-foreground shadow-glow">
+                <step.icon className="h-5 w-5" />
               </div>
-              <h3 className="font-semibold text-gray-900 mb-2">{step.title}</h3>
-              <p className="text-sm text-gray-500 leading-relaxed">{step.description}</p>
+              <h3 className="relative mt-5 text-lg font-bold text-ink">{i + 1}. {step.title}</h3>
+              <p className="relative mt-1 text-sm text-ink-soft">{step.description}</p>
             </div>
           ))}
         </div>

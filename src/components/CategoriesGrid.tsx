@@ -3,27 +3,24 @@ import { categories } from "@/lib/data"
 
 export function CategoriesGrid() {
   return (
-    <section className="py-12 sm:py-16">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="flex items-center justify-between mb-8">
+    <section className="mx-auto max-w-7xl px-4 py-16 lg:px-8">
+      <div>
+        <div className="flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
           <div>
-            <h2 className="text-2xl sm:text-3xl font-bold text-gray-900">Catégories populaires</h2>
-            <p className="text-gray-500 mt-1 text-sm">Trouvez votre bon plan par univers</p>
+            <h2 className="font-display text-3xl font-bold text-ink sm:text-4xl">Catégories populaires</h2>
+            <p className="mt-1 text-sm text-ink-soft">Trouvez votre bon plan par univers</p>
           </div>
-          <Link to="/categories" className="text-sm font-medium text-red-600 hover:text-red-700">
-            Voir tout
-          </Link>
         </div>
-        <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-3">
+        <div className="mt-8 grid grid-cols-2 gap-3 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6">
           {categories.map((cat) => (
             <Link
               key={cat.id}
               to="/"
-              className="flex flex-col items-center gap-2 p-4 rounded-xl border border-gray-200 hover:border-red-200 hover:shadow-md hover:bg-red-50/30 transition-all duration-200 group"
+              className="group rounded-2xl border border-border/60 bg-card p-4 shadow-card transition hover:-translate-y-0.5 hover:shadow-lift"
             >
-              <span className="text-3xl group-hover:scale-110 transition-transform">{cat.icon}</span>
-              <span className="text-sm font-medium text-gray-800 text-center">{cat.name}</span>
-              <span className="text-xs text-gray-400">{cat.count} promos</span>
+              <span className="block text-3xl transition-transform group-hover:scale-110">{cat.icon}</span>
+              <span className="mt-3 block text-sm font-bold text-ink">{cat.name}</span>
+              <span className="mt-1 block text-xs text-muted-foreground">{cat.count} promos</span>
             </Link>
           ))}
         </div>

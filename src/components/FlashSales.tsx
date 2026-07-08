@@ -1,28 +1,21 @@
 import { Link } from "react-router-dom"
 import { ProductCard } from "@/components/ProductCard"
-import { Button } from "@/components/ui/button"
 import { flashProducts } from "@/lib/data"
-import { Zap } from "lucide-react"
+import { ArrowRight, Zap } from "lucide-react"
 
 export function FlashSales() {
   return (
-    <section className="py-12 sm:py-16 bg-gradient-to-b from-orange-50 to-white">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="flex items-center justify-between mb-8">
-          <div className="flex items-center gap-3">
-            <div className="w-10 h-10 bg-gradient-to-br from-red-500 to-amber-400 rounded-xl flex items-center justify-center">
-              <Zap className="w-5 h-5 text-white" />
-            </div>
-            <div>
-              <h2 className="text-2xl sm:text-3xl font-bold text-gray-900">Offres flash</h2>
-              <p className="text-gray-500 mt-0.5 text-sm">Ça se termine bientôt !</p>
-            </div>
+    <section className="mx-auto max-w-7xl px-4 py-16 lg:px-8">
+      <div>
+        <div className="flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
+          <div>
+            <div className="flex items-center gap-2 text-xs font-bold uppercase tracking-widest text-primary"><Zap className="h-4 w-4 fill-primary" />Offres flash</div>
+            <h2 className="mt-1 font-display text-3xl font-bold text-ink sm:text-4xl">Ça se termine bientôt !</h2>
+            <p className="mt-2 text-sm text-ink-soft">Des remises jusqu'à −50% pour quelques heures seulement.</p>
           </div>
-          <Link to="/">
-            <Button variant="outline" size="sm">Voir tout</Button>
-          </Link>
+          <Link to="/" className="inline-flex items-center gap-2 rounded-full border border-border px-4 py-2 text-sm font-semibold text-ink transition hover:border-primary hover:text-primary">Voir tout <ArrowRight className="h-4 w-4" /></Link>
         </div>
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+        <div className="mt-8 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
           {flashProducts.map((product) => (
             <ProductCard key={product.id} product={product} />
           ))}

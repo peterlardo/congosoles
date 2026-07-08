@@ -3,12 +3,49 @@
 @tailwind utilities;
 
 @layer base {
+  :root {
+    --background: oklch(99% .005 60);
+    --foreground: oklch(18% .02 40);
+    --ink: oklch(15% .02 40);
+    --ink-soft: oklch(35% .02 40);
+    --card: oklch(100% 0 0);
+    --primary: oklch(68% .21 40);
+    --primary-foreground: oklch(100% 0 0);
+    --secondary: oklch(96% .01 60);
+    --secondary-foreground: oklch(18% .02 40);
+    --muted: oklch(96% .008 60);
+    --muted-foreground: oklch(50% .02 40);
+    --accent: oklch(95% .03 50);
+    --accent-foreground: oklch(28% .15 40);
+    --border: oklch(92% .008 60);
+    --input: oklch(94% .008 60);
+    --success: oklch(62% .15 155);
+    --gradient-primary: linear-gradient(135deg, oklch(72% .2 45) 0%, oklch(62% .23 32) 100%);
+    --gradient-hero: linear-gradient(135deg, oklch(75% .19 55) 0%, oklch(60% .24 30) 100%);
+    --gradient-flash: linear-gradient(135deg, oklch(70% .22 35) 0%, oklch(55% .24 20) 100%);
+  }
+
   body {
-    @apply text-gray-900 antialiased;
+    @apply bg-background text-foreground antialiased;
   }
 }
 
 @layer utilities {
+  .gradient-primary {
+    background-image: var(--gradient-primary);
+  }
+
+  .gradient-flash {
+    background-image: var(--gradient-flash);
+  }
+
+  .text-gradient-primary {
+    background-image: var(--gradient-primary);
+    color: transparent;
+    -webkit-background-clip: text;
+    background-clip: text;
+  }
+
   .line-clamp-2 {
     display: -webkit-box;
     -webkit-line-clamp: 2;

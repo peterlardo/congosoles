@@ -1,36 +1,33 @@
 import { Link } from "react-router-dom"
-import { Button } from "@/components/ui/button"
 import { stores } from "@/lib/data"
-import { ArrowRight, MapPin, ShoppingBag } from "lucide-react"
+import { BadgeCheck } from "lucide-react"
 
 export function StoresSection() {
   return (
-    <section className="py-12 sm:py-16 bg-gray-50">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="flex items-center justify-between mb-8">
+    <section className="mx-auto max-w-7xl px-4 py-16 lg:px-8">
+      <div>
+        <div className="flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
           <div>
-            <h2 className="text-2xl sm:text-3xl font-bold text-gray-900">Grandes enseignes</h2>
-            <p className="text-gray-500 mt-0.5 text-sm">Boutiques populaires</p>
+            <div className="text-xs font-bold uppercase tracking-widest text-primary">Grandes enseignes</div>
+            <h2 className="mt-1 font-display text-3xl font-bold text-ink sm:text-4xl">Boutiques populaires</h2>
           </div>
         </div>
-        <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-4">
+        <div className="mt-8 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
           {stores.map((store) => (
-            <Link
+            <div
               key={store.id}
-              to="/"
-              className="bg-white rounded-xl border border-gray-200 p-5 hover:shadow-md hover:border-red-200 transition-all duration-200 group"
+              className="flex items-center gap-4 rounded-2xl border border-border/60 bg-card p-4 shadow-card transition hover:shadow-lift"
             >
-              <div className="text-3xl mb-3">{store.category}</div>
-              <h3 className="font-semibold text-gray-900 text-sm mb-1">{store.name}</h3>
-              <div className="flex items-center gap-1 text-xs text-gray-400 mb-3">
-                <MapPin className="h-3 w-3" />
-                <span>{store.location}</span>
+              <div className="grid h-14 w-14 place-items-center rounded-2xl bg-accent text-2xl">{store.category}</div>
+              <div className="min-w-0 flex-1">
+                <div className="flex items-center gap-1.5">
+                  <div className="truncate font-semibold text-ink">{store.name}</div>
+                  {store.id !== 4 && <BadgeCheck className="h-4 w-4 text-primary" />}
+                </div>
+                <div className="text-xs text-muted-foreground">{store.location} · {store.activePromos} promos actives</div>
               </div>
-              <div className="flex items-center justify-between">
-                <span className="text-xs text-red-600 font-medium">{store.activePromos} promos actives</span>
-                <ArrowRight className="h-3.5 w-3.5 text-gray-300 group-hover:text-red-500 group-hover:translate-x-0.5 transition-all" />
-              </div>
-            </Link>
+              <Link to="/" className="rounded-full border border-border px-3 py-1.5 text-xs font-semibold text-ink transition hover:border-primary hover:text-primary">Visiter</Link>
+            </div>
           ))}
         </div>
       </div>

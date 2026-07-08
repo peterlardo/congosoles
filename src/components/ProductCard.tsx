@@ -1,52 +1,58 @@
-import { Badge } from "@/components/ui/badge"
-import { Clock, MapPin, ShoppingBag } from "lucide-react"
+import { Heart, MapPin, Store, Zap } from "lucide-react"
 import type { Product } from "@/lib/data"
+
+const formatPrice = (price: number) => new Intl.NumberFormat("fr-FR").format(price)
 
 export function ProductCard({ product }: { product: Product }) {
   return (
-    <div className="group bg-white rounded-xl border border-gray-200 overflow-hidden hover:shadow-lg hover:border-red-200 transition-all duration-300 cursor-pointer">
-      <div className="relative aspect-[4/3] overflow-hidden bg-gray-100">
+    <article className="group relative flex flex-col overflow-hidden rounded-2xl bg-card shadow-card ring-1 ring-border/60 transition-all hover:-translate-y-0.5 hover:shadow-lift">
+      <div className="relative aspect-[4/3] overflow-hidden bg-muted">
         <img
           src={product.image}
           alt={product.title}
-          className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+          loading="lazy"
+          className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-105"
         />
-        <div className="absolute top-3 left-3 flex flex-col gap-2">
-          <div className="bg-red-600 text-white text-xs font-bold px-2.5 py-1 rounded-full shadow-lg">
-            −{product.discountPercent}%
+        <div className="absolute left-3 top-3 rounded-full gradient-primary px-2.5 py-1 text-xs font-bold text-primary-foreground shadow-glow">
+          -{product.discountPercent}%
+        </div>
+        {product.isFlash && (
+          <div className="absolute right-3 top-3 flex items-center gap-1 rounded-full bg-ink px-2 py-1 text-[10px] font-bold uppercase tracking-wider text-primary-foreground">
+            <Zap className="h-3 w-3 fill-primary text-primary" /> Flash
           </div>
-          {product.isFlash && (
-            <Badge variant="flash" className="text-[10px] shadow-lg">
-              Flash
-            </Badge>
-          )}
-        </div>
-        <div className="absolute bottom-3 right-3 bg-white/90 backdrop-blur-sm rounded-lg px-2 py-1 text-xs font-medium text-gray-700 shadow">
-          {product.subcategory}
-        </div>
+        )}
+        <button aria-label="Ajouter aux favoris" className="absolute bottom-3 right-3 grid h-8 w-8 place-items-center rounded-full bg-background/90 text-ink shadow-card backdrop-blur transition hover:bg-primary hover:text-primary-foreground">
+          <Heart className="h-4 w-4" />
+        </button>
       </div>
-      <div className="p-4">
-        <p className="text-xs text-gray-500 mb-1">{product.brand}·{product.category}</p>
-        <h3 className="font-semibold text-gray-900 text-sm leading-tight mb-2 line-clamp-2">
+      <div className="flex flex-1 flex-col gap-2 p-4">
+        <div className="flex items-center gap-1.5 text-[11px] font-medium uppercase tracking-wider text-muted-foreground">
+          <span>{product.brand}</span><span>·</span><span>{product.category}</span>
+        </div>
+        <h3 className="line-clamp-2 text-sm font-semibold leading-snug text-ink">
           {product.title}
         </h3>
-        <div className="flex items-baseline gap-2 mb-3">
-          <span className="text-lg font-bold text-red-600">{product.discountPrice.toLocaleString()} FCFA</span>
-          <span className="text-xs text-gray-400 line-through">{product.originalPrice.toLocaleString()} FCFA</span>
+        <div className="mt-1 flex items-baseline gap-2">
+          <span className="text-lg font-bold text-primary">{formatPrice(product.discountPrice)} FCFA</span>
+          <span className="text-xs text-muted-foreground line-through">{formatPrice(product.originalPrice)} FCFA</span>
         </div>
-        <div className="flex items-center justify-between text-xs text-gray-500 pt-3 border-t border-gray-100">
+        <div className="mt-auto flex items-center justify-between border-t border-border/60 pt-3 text-xs text-muted-foreground">
           <div className="flex items-center gap-1.5">
-            <MapPin className="h-3 w-3 text-gray-400" />
-            <span>{product.store} · {product.storeDistance}</span>
+            <Store className="h-3.5 w-3.5" />
+            <span className="max-w-[8rem] truncate">{product.store}</span>
           </div>
-          {product.isFlash && product.flashEnd && (
-            <div className="flex items-center gap-1 text-red-500 font-medium">
-              <Clock className="h-3 w-3" />
-              <span>Fin dans{product.flashEnd}</span>
-            </div>
-          )}
+          <div className="flex items-center gap-1">
+            <MapPin className="h-3.5 w-3.5" />
+            <span>{product.storeDistance}</span>
+          </div>
         </div>
+        {product.isFlash && product.flashEnd && (
+          <div className="flex items-center justify-between rounded-lg bg-accent/60 px-2.5 py-1.5">
+            <span className="text-[10px] font-semibold uppercase tracking-wider text-accent-foreground">Fin dans</span>
+            <span className="font-mono text-xs font-semibold tabular-nums">{product.flashEnd}</span>
+          </div>
+        )}
       </div>
-    </div>
+    </article>
   )
 }

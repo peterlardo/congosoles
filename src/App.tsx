@@ -6,7 +6,7 @@ import Home from "@/pages/Home"
 function App() {
   return (
     <BrowserRouter>
-      <div className="min-h-screen bg-white font-sans antialiased">
+      <div className="min-h-screen bg-background font-sans antialiased">
         <Header />
         <Routes>
           <Route path="/" element={<Home />} />
