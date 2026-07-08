@@ -34,7 +34,7 @@ export function TodayPromos() {
           </div>
           <Link to="/" className="inline-flex items-center gap-2 rounded-full border border-border px-4 py-2 text-sm font-semibold text-ink transition hover:border-primary hover:text-primary">Tout voir <ArrowRight className="h-4 w-4" /></Link>
         </div>
-        <div className="mt-6 grid gap-3 rounded-3xl border border-border/60 bg-card p-3 shadow-card sm:grid-cols-3">
+        <div className="mt-6 grid max-w-3xl gap-3 rounded-3xl border border-border/60 bg-card p-3 shadow-card sm:grid-cols-3">
           <label className="flex flex-col gap-1.5">
             <span className="px-2 text-[11px] font-bold uppercase tracking-widest text-muted-foreground">Ville</span>
             <select
