@@ -1,6 +1,6 @@
 import { Link } from "react-router-dom"
 import { Button } from "@/components/ui/button"
-import { MapPin, Menu, Search, X } from "lucide-react"
+import { Menu, Search, X } from "lucide-react"
 import { useState } from "react"
 
 export function Header() {
@@ -17,11 +17,6 @@ export function Header() {
               <div className="text-xs text-muted-foreground">La qualité au petit prix</div>
             </div>
           </Link>
-
-          <div className="hidden items-center gap-2 rounded-full border border-border bg-card px-3 py-2 text-sm font-medium text-ink-soft shadow-card lg:flex">
-            <MapPin className="h-4 w-4 text-primary" />
-            <span>Brazzaville</span>
-          </div>
 
           <form className="hidden min-w-0 flex-1 max-w-sm items-center rounded-full border border-border bg-card p-1 shadow-card md:flex">
             <Search className="ml-3 h-4 w-4 shrink-0 text-muted-foreground" />
