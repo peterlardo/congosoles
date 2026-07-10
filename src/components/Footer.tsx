@@ -6,7 +6,7 @@ export function Footer() {
         <div className="grid gap-12 lg:grid-cols-[1.4fr_repeat(3,1fr)]">
           <div>
             <div className="flex items-center gap-2">
-              <img src="/assets/logo.png" alt="Congo Soldes" className="h-32 w-32 object-contain" />
+              <img src="/assets/logo.png" alt="Congo Soldes" className="h-48 w-48 object-contain" />
               <div>
                 <div className="font-display text-xl font-bold text-ink">Congo<span className="text-primary">Soldes</span></div>
                 <div className="text-xs text-muted-foreground">La qualité au petit prix</div>
