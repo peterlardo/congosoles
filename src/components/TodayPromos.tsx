@@ -51,10 +51,10 @@ export function TodayPromos() {
               <select
                 value={city}
                 onChange={(e) => handleFilterChange(setCity)(e.target.value)}
-                className="h-11 rounded-full border border-white/20 bg-white/15 px-4 text-sm font-semibold text-white outline-none backdrop-blur transition placeholder:text-white/50 focus:border-white/50 focus:bg-white/25"
+                className="h-11 rounded-full border border-white/30 bg-white px-4 text-sm font-semibold text-ink outline-none transition focus:ring-2 focus:ring-white/50"
               >
                 {cities.map((option) => (
-                  <option key={option} value={option} className="text-ink">{option}</option>
+                  <option key={option} value={option}>{option}</option>
                 ))}
               </select>
             </label>
@@ -63,10 +63,10 @@ export function TodayPromos() {
               <select
                 value={category}
                 onChange={(e) => handleFilterChange(setCategory)(e.target.value)}
-                className="h-11 rounded-full border border-white/20 bg-white/15 px-4 text-sm font-semibold text-white outline-none backdrop-blur transition placeholder:text-white/50 focus:border-white/50 focus:bg-white/25"
+                className="h-11 rounded-full border border-white/30 bg-white px-4 text-sm font-semibold text-ink outline-none transition focus:ring-2 focus:ring-white/50"
               >
                 {categories.map((option) => (
-                  <option key={option} value={option} className="text-ink">{option}</option>
+                  <option key={option} value={option}>{option}</option>
                 ))}
               </select>
             </label>
@@ -75,7 +75,7 @@ export function TodayPromos() {
               <select
                 value={shop}
                 onChange={(e) => handleFilterChange(setShop)(e.target.value)}
-                className="h-11 rounded-full border border-white/20 bg-white/15 px-4 text-sm font-semibold text-white outline-none backdrop-blur transition placeholder:text-white/50 focus:border-white/50 focus:bg-white/25"
+                className="h-11 rounded-full border border-white/30 bg-white px-4 text-sm font-semibold text-ink outline-none transition focus:ring-2 focus:ring-white/50"
               >
                 {shops.map((option) => (
                   <option key={option} value={option} className="text-ink">{option}</option>
