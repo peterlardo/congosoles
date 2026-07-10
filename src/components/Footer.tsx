@@ -7,10 +7,6 @@ export function Footer() {
           <div>
             <div className="flex items-center gap-2">
               <img src="/assets/logo.png" alt="Congo Soldes" className="h-40 w-40 object-contain" />
-              <div>
-                <div className="font-display text-xl font-bold text-ink">Congo<span className="text-primary">Soldes</span></div>
-                <div className="text-xs text-muted-foreground">La qualité au petit prix</div>
-              </div>
             </div>
             <p className="mt-4 max-w-sm text-sm text-ink-soft">
               La plateforme n°1 des promotions commerciales en République du Congo. Découvrez chaque jour les meilleures offres des commerces près de chez vous.
