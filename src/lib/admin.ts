@@ -67,7 +67,7 @@ export async function toggleStoreBadge(storeId: string, badge: "verified" | "pre
 
 // Promotions
 export async function fetchAdminPromotions(status?: string, search?: string): Promise<AdminPromotion[]> {
-  let query = supabase.from("promotions").select("*, stores!promotions_store_id_fkey(name, slug), profiles!promotions_user_id_fkey(email)")
+  let query = supabase.from("promotions").select("*, stores!promotions_store_id_fkey(name, slug)")
   if (status && status !== "all") query = query.eq("status", status)
   if (search) query = query.ilike("title", `%${search}%`)
   query = query.order("created_at", { ascending: false })
@@ -76,7 +76,7 @@ export async function fetchAdminPromotions(status?: string, search?: string): Pr
     ...p,
     store_name: p.stores?.name || "",
     store_slug: p.stores?.slug || "",
-    owner_email: p.profiles?.email || ""
+    owner_email: ""
   })) || []
 }
 
