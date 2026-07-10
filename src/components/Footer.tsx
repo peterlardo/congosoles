@@ -5,7 +5,13 @@ export function Footer() {
       <div className="mx-auto max-w-7xl px-4 py-16 lg:px-8">
         <div className="grid gap-12 lg:grid-cols-[1.4fr_repeat(3,1fr)]">
           <div>
-            <img src="/assets/logo.png" alt="Congo Soldes" className="h-24 w-24 object-contain" />
+            <div className="flex items-center gap-2">
+              <img src="https://congosoles.lovable.app/assets/logo-DGAuEYmk.png" alt="Congo Soldes" className="h-11 w-11 object-contain" />
+              <div>
+                <div className="font-display text-xl font-bold text-ink">Congo<span className="text-primary">Soldes</span></div>
+                <div className="text-xs text-muted-foreground">La qualité au petit prix</div>
+              </div>
+            </div>
             <p className="mt-4 max-w-sm text-sm text-ink-soft">
               La plateforme n°1 des promotions commerciales en République du Congo. Découvrez chaque jour les meilleures offres des commerces près de chez vous.
             </p>

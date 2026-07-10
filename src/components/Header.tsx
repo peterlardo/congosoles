@@ -10,8 +10,12 @@ export function Header() {
     <header className="sticky top-0 z-50 border-b border-border/70 bg-background/85 backdrop-blur-xl">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex h-20 items-center justify-between">
-          <Link to="/">
-            <img src="/assets/logo.png" alt="Congo Soldes" className="h-24 w-24 object-contain" />
+          <Link to="/" className="flex items-center gap-2">
+            <img src="https://congosoles.lovable.app/assets/logo-DGAuEYmk.png" alt="Congo Soldes" className="h-11 w-11 object-contain" />
+            <div>
+              <div className="font-display text-xl font-bold leading-tight text-ink">Congo<span className="text-primary">Soldes</span></div>
+              <div className="text-xs text-muted-foreground">La qualité au petit prix</div>
+            </div>
           </Link>
 
           <form className="hidden min-w-0 flex-1 max-w-sm items-center rounded-full border border-border bg-card p-1 shadow-card md:flex">
