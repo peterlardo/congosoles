@@ -6,6 +6,10 @@ import { Link } from "react-router-dom"
 import type { AdminStore } from "@/types/admin"
 import Pagination from "@/components/Pagination"
 
+function slugify(text: string) {
+  return text.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "").replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "")
+}
+
 export default function AdminStores() {
   const [stores, setStores] = useState<AdminStore[]>([])
   const [loading, setLoading] = useState(true)
@@ -292,9 +296,10 @@ export default function AdminStores() {
                 <button onClick={async () => {
                   if (!newStore.name || !newStore.category) return
                   const { data: userData } = await supabase.auth.getUser()
-                  await supabase.from("stores").insert({
+                  const { error } = await supabase.from("stores").insert({
                     user_id: userData.user?.id,
                     name: newStore.name,
+                    slug: slugify(newStore.name) + "-" + Date.now().toString(36),
                     category: newStore.category,
                     address: newStore.address || null,
                     phone: newStore.phone || null,
@@ -304,6 +309,7 @@ export default function AdminStores() {
                     status: "active",
                     verified: true,
                   })
+                  if (error) { alert("Erreur : " + error.message); return }
                   setShowCreate(false)
                   setNewStore({ name: "", address: "", phone: "", category: "", description: "", district: "", neighborhood: "" })
                   const data = await fetchAdminStores(statusFilter, search)
