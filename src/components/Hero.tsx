@@ -1,9 +1,6 @@
-import { Button } from "@/components/ui/button"
-import { Input } from "@/components/ui/input"
-import { Search, MapPin } from "lucide-react"
+import { MapPin } from "lucide-react"
 
 const cities = ["Brazzaville", "Pointe-Noire", "Dolisie", "Ouesso"]
-const searchTerms = ["Riz", "Smartphones", "Sneakers", "Wax", "Restaurants", "Frigo"]
 
 export function Hero() {
   return (
@@ -34,29 +31,6 @@ export function Hero() {
                 >
                   <MapPin className="h-3.5 w-3.5 text-primary" />
                   {city}
-                </button>
-              ))}
-            </div>
-
-            <div className="relative mt-6 max-w-xl rounded-full border border-border bg-card p-1 shadow-card">
-              <Search className="absolute left-5 top-1/2 h-5 w-5 -translate-y-1/2 text-muted-foreground" />
-              <Input
-                type="text"
-                placeholder="Rechercher un produit, une marque, un commerce..."
-                className="h-12 rounded-full border-0 bg-transparent pl-12 pr-32 text-ink shadow-none focus-visible:ring-0"
-              />
-              <Button className="absolute right-1.5 top-1/2 h-10 -translate-y-1/2 rounded-full gradient-primary px-5 text-xs font-bold text-primary-foreground shadow-glow hover:opacity-95">
-                Rechercher
-              </Button>
-            </div>
-
-            <div className="mt-4 flex flex-wrap gap-2">
-              {searchTerms.map((term) => (
-                <button
-                  key={term}
-                  className="rounded-full bg-secondary px-3 py-1.5 text-xs font-semibold text-ink-soft transition hover:text-primary"
-                >
-                  {term}
                 </button>
               ))}
             </div>
