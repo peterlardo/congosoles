@@ -11,7 +11,7 @@ export function Header() {
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex h-20 items-center justify-between">
           <Link to="/">
-            <img src="/assets/logo.png" alt="Congo Soldes" className="h-40 w-40 object-contain" />
+            <img src="/logo.svg" alt="Congo Soldes" className="h-24 w-24" />
           </Link>
 
           <form className="hidden min-w-0 flex-1 max-w-sm items-center rounded-full border border-border bg-card p-1 shadow-card md:flex">
