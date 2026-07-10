@@ -1,14 +1,27 @@
+import { useEffect, useState } from "react"
 import { Link } from "react-router-dom"
 import { FlashSales } from "@/components/FlashSales"
 import { TodayPromos } from "@/components/TodayPromos"
 import { Trending } from "@/components/Trending"
-import { allProducts, flashProducts } from "@/lib/data"
-import { Zap, TrendingUp, Tag, Store } from "lucide-react"
-
-const totalDiscount = Math.round(allProducts.reduce((acc, p) => acc + p.discountPercent, 0) / allProducts.length)
-const uniqueStores = new Set(allProducts.map((p) => p.store)).size
+import { fetchActivePromotions, type PromoItem } from "@/lib/promotions"
+import { Zap, Tag, Store } from "lucide-react"
 
 export default function Promos() {
+  const [allItems, setAllItems] = useState<PromoItem[]>([])
+  const [flashItems, setFlashItems] = useState<PromoItem[]>([])
+
+  useEffect(() => {
+    fetchActivePromotions().then(data => {
+      setAllItems(data)
+      setFlashItems(data.filter(p => p.isFlash))
+    })
+  }, [])
+
+  const totalDiscount = allItems.length > 0
+    ? Math.round(allItems.reduce((acc, p) => acc + p.discountPercent, 0) / allItems.length)
+    : 0
+  const uniqueStores = new Set(allItems.map(p => p.store)).size
+
   return (
     <main>
       <section className="relative overflow-hidden bg-gradient-to-br from-orange-600 via-orange-500 to-red-500">
@@ -23,7 +36,7 @@ export default function Promos() {
             <div>
               <div className="mb-2 inline-flex items-center gap-2 rounded-full bg-white/15 px-3 py-1 text-xs font-bold text-white backdrop-blur">
                 <Zap className="h-3 w-3" />
-                +{allProducts.length} offres disponibles
+                +{allItems.length} offres disponibles
               </div>
               <h1 className="font-display text-4xl font-bold text-white sm:text-5xl lg:text-6xl">Promotions</h1>
               <p className="mt-2 max-w-lg text-lg font-medium text-white/80">
@@ -45,7 +58,7 @@ export default function Promos() {
               <div className="rounded-2xl bg-white/15 px-5 py-3 text-center backdrop-blur">
                 <div className="flex items-center justify-center gap-1 text-white">
                   <Zap className="h-4 w-4" />
-                  <span className="font-display text-2xl font-bold">{flashProducts.length}</span>
+                  <span className="font-display text-2xl font-bold">{flashItems.length}</span>
                 </div>
                 <div className="text-xs text-white/60">Offres flash</div>
               </div>

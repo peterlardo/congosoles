@@ -1,12 +1,13 @@
+import { useEffect, useState } from "react"
 import { useParams } from "react-router-dom"
-import { allProducts } from "@/lib/data"
+import { fetchActivePromotions, type PromoItem } from "@/lib/promotions"
 import { ProductCard } from "@/components/ProductCard"
 
 const categoryLabels: Record<string, string> = {
   supermarches: "Supermarchés",
   mode: "Mode",
   chaussures: "Chaussures",
-  "beaute": "Beauté",
+  beaute: "Beauté",
   telephones: "Téléphones",
   informatique: "Informatique",
   electromenager: "Électroménager",
@@ -17,12 +18,20 @@ const categoryLabels: Record<string, string> = {
   sport: "Sport",
 }
 
+function slugify(text: string) {
+  return text.toLowerCase().replace(/[éèêë]/g, "e").replace(/[àâä]/g, "a").replace(/[ùûü]/g, "u").replace(/[ôö]/g, "o").replace(/[îï]/g, "i").replace(/ /g, "-").replace(/[^a-z0-9-]/g, "")
+}
+
 export default function Category() {
   const { slug } = useParams<{ slug: string }>()
   const label = categoryLabels[slug || ""] || slug
-  const products = allProducts.filter(
-    (p) => p.category.toLowerCase().replace(/[éè]/g, "e").replace(/ /g, "-") === slug
-  )
+  const [products, setProducts] = useState<PromoItem[]>([])
+
+  useEffect(() => {
+    fetchActivePromotions().then(data => {
+      setProducts(data.filter(p => slugify(p.category) === slug))
+    })
+  }, [slug])
 
   return (
     <main className="mx-auto max-w-7xl px-4 py-12 lg:px-8">

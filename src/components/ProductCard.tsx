@@ -1,10 +1,10 @@
 import { Heart, MapPin, Store, Zap } from "lucide-react"
 import { Link } from "react-router-dom"
-import type { Product } from "@/lib/data"
+import type { PromoItem } from "@/lib/promotions"
 
 const formatPrice = (price: number) => new Intl.NumberFormat("fr-FR").format(price)
 
-export function ProductCard({ product }: { product: Product }) {
+export function ProductCard({ product }: { product: PromoItem }) {
   return (
     <Link to={`/promo/${product.id}`}>
       <article className="group relative flex flex-col overflow-hidden rounded-2xl bg-card shadow-card ring-1 ring-border/60 transition-all hover:-translate-y-0.5 hover:shadow-lift">

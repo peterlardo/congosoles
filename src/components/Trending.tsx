@@ -1,8 +1,17 @@
+import { useEffect, useState } from "react"
 import { ProductCard } from "@/components/ProductCard"
-import { todayProducts } from "@/lib/data"
+import { fetchActivePromotions, type PromoItem } from "@/lib/promotions"
 
 export function Trending() {
-  const trending = todayProducts.filter(p => [6, 7, 8, 9].includes(p.id))
+  const [items, setItems] = useState<PromoItem[]>([])
+
+  useEffect(() => {
+    fetchActivePromotions().then(data => {
+      const sorted = [...data].sort((a, b) => b.views - a.views).slice(0, 4)
+      setItems(sorted)
+    })
+  }, [])
+
   return (
     <section className="mx-auto max-w-7xl px-4 py-16 lg:px-8">
       <div>
@@ -13,7 +22,7 @@ export function Trending() {
           </div>
         </div>
         <div className="mt-8 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
-          {trending.map((product) => (
+          {items.map((product) => (
             <ProductCard key={product.id} product={product} />
           ))}
         </div>

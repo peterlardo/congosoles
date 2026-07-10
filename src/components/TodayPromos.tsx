@@ -1,23 +1,28 @@
 import { Link } from "react-router-dom"
 import { ProductCard } from "@/components/ProductCard"
-import { todayProducts } from "@/lib/data"
+import { fetchActivePromotions, type PromoItem } from "@/lib/promotions"
 import { ArrowRight, ChevronLeft, ChevronRight } from "lucide-react"
-import { useState } from "react"
+import { useEffect, useState } from "react"
 
 const allValue = "Toutes"
 const perPage = 12
 
-const cities = [allValue, ...Array.from(new Set(todayProducts.map((product) => product.location)))]
-const categories = [allValue, ...Array.from(new Set(todayProducts.map((product) => product.category)))]
-const shops = [allValue, ...Array.from(new Set(todayProducts.map((product) => product.store)))]
-
 export function TodayPromos() {
+  const [allItems, setAllItems] = useState<PromoItem[]>([])
   const [city, setCity] = useState(allValue)
   const [category, setCategory] = useState(allValue)
   const [shop, setShop] = useState(allValue)
   const [page, setPage] = useState(1)
 
-  const filteredProducts = todayProducts.filter((product) => {
+  useEffect(() => {
+    fetchActivePromotions().then(setAllItems)
+  }, [])
+
+  const cities = [allValue, ...Array.from(new Set(allItems.map(p => p.location)))]
+  const categories = [allValue, ...Array.from(new Set(allItems.map(p => p.category)))]
+  const shops = [allValue, ...Array.from(new Set(allItems.map(p => p.store)))]
+
+  const filteredProducts = allItems.filter((product) => {
     return (
       (city === allValue || product.location === city) &&
       (category === allValue || product.category === category) &&

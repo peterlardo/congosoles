@@ -1,7 +1,18 @@
+import { useEffect, useState } from "react"
 import { useParams, Link } from "react-router-dom"
-import { allProducts, stores } from "@/lib/data"
+import { fetchActivePromotions, type PromoItem } from "@/lib/promotions"
 import { MapPin, BadgeCheck, ArrowLeft } from "lucide-react"
-import { StoreLogo } from "@/components/StoreLogo"
+import { supabase } from "@/lib/supabase"
+
+interface Store {
+  id: string
+  name: string
+  slug: string
+  logo: string | null
+  address: string | null
+  district: string | null
+  created_at: string
+}
 
 const storeMeta: Record<string, { tagline: string; description: string; gradient: string; accent: string }> = {
   "Casino Brazza": {
@@ -86,11 +97,24 @@ const defaultMeta = {
 }
 
 export default function StoreDetail() {
-  const { name } = useParams<{ name: string }>()
-  const decodedName = decodeURIComponent(name || "")
-  const products = allProducts.filter((p) => p.store === decodedName)
-  const store = stores.find((s) => s.name === decodedName)
+  const { name: slug } = useParams<{ name: string }>()
+  const decodedSlug = decodeURIComponent(slug || "")
+  const [store, setStore] = useState<Store | null>(null)
+  const [products, setProducts] = useState<PromoItem[]>([])
+
+  useEffect(() => {
+    if (!decodedSlug) return
+    supabase.from("stores").select("*").eq("slug", decodedSlug).single().then(({ data }) => {
+      setStore(data)
+    })
+    fetchActivePromotions().then(data => {
+      setProducts(data.filter(p => p.store_slug === decodedSlug))
+    })
+  }, [decodedSlug])
+
+  const decodedName = store?.name || decodedSlug
   const meta = storeMeta[decodedName] || defaultMeta
+  const activePromos = products.length
 
   return (
     <main>
@@ -104,11 +128,13 @@ export default function StoreDetail() {
 
           <div className="flex flex-col gap-6 sm:flex-row sm:items-end sm:justify-between">
             <div className="flex items-start gap-5">
-              {store && <StoreLogo store={store} size="xl" />}
+              {store?.logo && (
+                <img src={store.logo} alt={store.name} className="h-16 w-16 rounded-2xl object-cover ring-2 ring-white/30" />
+              )}
               <div>
                 <div className="flex items-center gap-2 mb-2">
                   <h1 className="font-display text-4xl font-bold text-white sm:text-5xl lg:text-6xl">{decodedName}</h1>
-                  {store && store.id !== 4 && <BadgeCheck className="h-7 w-7 text-white/80" />}
+                  <BadgeCheck className="h-7 w-7 text-white/80" />
                 </div>
                 <p className="mt-1 text-lg font-medium text-white/80">{meta.tagline}</p>
                 <p className="mt-2 max-w-lg text-sm leading-relaxed text-white/60">{meta.description}</p>
@@ -116,21 +142,17 @@ export default function StoreDetail() {
             </div>
 
             <div className="flex shrink-0 gap-4">
-              {store && (
-                <>
-                  <div className="rounded-2xl bg-white/15 px-5 py-3 text-center backdrop-blur">
-                    <div className="font-display text-2xl font-bold text-white">{store.activePromos}</div>
-                    <div className="text-xs text-white/60">Promos actives</div>
-                  </div>
-                  <div className="rounded-2xl bg-white/15 px-5 py-3 text-center backdrop-blur">
-                    <div className="flex items-center justify-center gap-1 text-white">
-                      <MapPin className="h-4 w-4" />
-                      <span className="font-display text-lg font-bold">{store.location}</span>
-                    </div>
-                    <div className="text-xs text-white/60">Localisation</div>
-                  </div>
-                </>
-              )}
+              <div className="rounded-2xl bg-white/15 px-5 py-3 text-center backdrop-blur">
+                <div className="font-display text-2xl font-bold text-white">{activePromos}</div>
+                <div className="text-xs text-white/60">Promos actives</div>
+              </div>
+              <div className="rounded-2xl bg-white/15 px-5 py-3 text-center backdrop-blur">
+                <div className="flex items-center justify-center gap-1 text-white">
+                  <MapPin className="h-4 w-4" />
+                  <span className="font-display text-lg font-bold">{store?.district || "Brazzaville"}</span>
+                </div>
+                <div className="text-xs text-white/60">Localisation</div>
+              </div>
             </div>
           </div>
         </div>

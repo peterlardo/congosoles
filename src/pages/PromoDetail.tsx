@@ -1,9 +1,30 @@
+import { useEffect, useState } from "react"
 import { useParams, Link } from "react-router-dom"
-import { allProducts } from "@/lib/data"
+import { fetchPromoById, type PromoItem } from "@/lib/promotions"
 
 export default function PromoDetail() {
   const { id } = useParams<{ id: string }>()
-  const product = allProducts.find((p) => p.id === Number(id))
+  const [product, setProduct] = useState<PromoItem | null>(null)
+  const [loading, setLoading] = useState(true)
+
+  useEffect(() => {
+    if (!id) return
+    setLoading(true)
+    fetchPromoById(id).then(data => {
+      setProduct(data)
+      setLoading(false)
+    })
+  }, [id])
+
+  if (loading) {
+    return (
+      <main className="mx-auto max-w-7xl px-4 py-12 lg:px-8">
+        <div className="rounded-3xl border border-border/60 bg-card p-8 text-center shadow-card">
+          <div className="font-display text-2xl font-bold text-ink">Chargement...</div>
+        </div>
+      </main>
+    )
+  }
 
   if (!product) {
     return (
@@ -68,9 +89,12 @@ export default function PromoDetail() {
               <span className="font-mono text-sm font-semibold tabular-nums text-accent-foreground">{product.flashEnd}</span>
             </div>
           )}
-          <button className="mt-6 w-full rounded-full gradient-primary px-6 py-3 text-sm font-bold text-primary-foreground shadow-glow hover:opacity-95">
+          <a
+            href={`/store/${product.store_slug}`}
+            className="mt-6 inline-flex w-full items-center justify-center rounded-full gradient-primary px-6 py-3 text-sm font-bold text-primary-foreground shadow-glow hover:opacity-95"
+          >
             Voir l'offre
-          </button>
+          </a>
         </div>
       </div>
     </main>

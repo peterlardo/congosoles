@@ -4,9 +4,9 @@ import { useAuth } from "@/contexts/AuthContext"
 import {
   LayoutDashboard, Zap, Store, Settings, LogOut, Menu,
   ChevronRight, Bell, User, ShoppingBag, TrendingUp, Shield,
-  Users, Layers, MapPin, CreditCard, DollarSign, AlertTriangle,
-  MessageSquare, FileText, History, Bell as BellIcon, Megaphone,
-  Crown, Image, Star, ShieldAlert, FileSignature
+  Users, Layers, MapPin, AlertTriangle,
+  MessageSquare, FileText, History, Bell as BellIcon,
+  FileSignature, Mail, CreditCard, Crown
 } from "lucide-react"
 
 export default function DashboardLayout() {
@@ -25,7 +25,7 @@ export default function DashboardLayout() {
     { to: "/dashboard/parametres", label: "Paramètres", icon: Settings },
   ]
 
-  const adminLinks = [
+  const sidebarLinks = [
     { to: "/dashboard", label: "Tableau de bord", icon: LayoutDashboard },
     { to: "/dashboard/admin/trends", label: "Tendances", icon: TrendingUp },
     { to: "/dashboard/admin/users", label: "Utilisateurs", icon: Users },
@@ -33,18 +33,22 @@ export default function DashboardLayout() {
     { to: "/dashboard/admin/promotions", label: "Promotions", icon: Zap },
     { to: "/dashboard/admin/categories", label: "Catégories", icon: Layers },
     { to: "/dashboard/admin/locations", label: "Localisations", icon: MapPin },
-    { to: "/dashboard/admin/subscriptions", label: "Abonnements", icon: Crown },
-    { to: "/dashboard/admin/payments", label: "Paiements", icon: DollarSign },
     { to: "/dashboard/admin/reports", label: "Signalements", icon: AlertTriangle },
-    { to: "/dashboard/admin/notifications", label: "Notifications", icon: BellIcon },
-    { to: "/dashboard/admin/contracts", label: "Contrats", icon: FileSignature },
     { to: "/dashboard/admin/cms", label: "Pages CMS", icon: FileText },
-    { to: "/dashboard/admin/support", label: "Support", icon: MessageSquare },
-    { to: "/dashboard/admin/activity", label: "Journal activité", icon: History },
     { to: "/dashboard/admin/settings", label: "Paramètres", icon: Settings },
   ]
 
-  const sidebarLinks = isAdmin ? adminLinks : vendorLinks
+  const topMenu = [
+    { to: "/dashboard/admin/notifications", label: "Notifications", icon: BellIcon },
+    { to: "/dashboard/admin/contracts", label: "Contrats", icon: FileSignature },
+    { to: "/dashboard/admin/support", label: "Support", icon: MessageSquare },
+    { to: "/dashboard/admin/messaging", label: "Messagerie", icon: Mail },
+    { to: "/dashboard/admin/activity", label: "Journal", icon: History },
+    { to: "/dashboard/admin/payments", label: "Paiements", icon: CreditCard },
+    { to: "/dashboard/admin/subscriptions", label: "Abonnements", icon: Crown },
+  ]
+
+  const displayLinks = isAdmin ? sidebarLinks : vendorLinks
 
   const handleLogout = async () => {
     await signOut()
@@ -74,7 +78,7 @@ export default function DashboardLayout() {
       )}
 
       <nav className="flex-1 space-y-1 px-3 py-4">
-        {sidebarLinks.map((link) => (
+        {displayLinks.map((link) => (
           <Link
             key={link.to}
             to={link.to}
@@ -127,21 +131,41 @@ export default function DashboardLayout() {
       )}
 
       <div className="flex min-w-0 flex-1 flex-col">
-        <header className="flex items-center gap-4 border-b border-border/60 bg-card px-6 py-3 lg:px-8">
-          <button onClick={() => setMobileOpen(true)} className="text-ink lg:hidden">
-            <Menu className="h-5 w-5" />
-          </button>
-          <div className="flex-1" />
-          <button className="relative text-muted-foreground transition hover:text-ink">
-            <Bell className="h-5 w-5" />
-            <span className="absolute -right-1 -top-1 h-2 w-2 rounded-full bg-primary" />
-          </button>
-          <div className="hidden sm:block text-right">
-            <div className="text-sm font-semibold text-ink">
-              {profile?.name || user?.user_metadata?.name || "Utilisateur"}
+        <header className="border-b border-border/60 bg-card">
+          <div className="flex items-center gap-4 px-6 py-3 lg:px-8">
+            <button onClick={() => setMobileOpen(true)} className="text-ink lg:hidden">
+              <Menu className="h-5 w-5" />
+            </button>
+            <div className="flex-1" />
+            <button className="relative text-muted-foreground transition hover:text-ink">
+              <Bell className="h-5 w-5" />
+              <span className="absolute -right-1 -top-1 h-2 w-2 rounded-full bg-primary" />
+            </button>
+            <div className="hidden sm:block text-right">
+              <div className="text-sm font-semibold text-ink">
+                {profile?.name || user?.user_metadata?.name || "Utilisateur"}
+              </div>
+              <div className="text-xs text-muted-foreground">{isSuperAdmin ? "Super Admin" : isAdmin ? "Administrateur" : "Plan Gratuit"}</div>
             </div>
-            <div className="text-xs text-muted-foreground">{isSuperAdmin ? "Super Admin" : isAdmin ? "Administrateur" : "Plan Gratuit"}</div>
           </div>
+          {isAdmin && (
+            <nav className="flex items-center gap-1 px-4 pb-3 overflow-x-auto lg:px-7">
+              {topMenu.map((item) => (
+                <Link
+                  key={item.to}
+                  to={item.to}
+                  className={`flex items-center gap-2 rounded-full px-4 py-2 text-xs font-semibold whitespace-nowrap transition ${
+                    isActive(item.to)
+                      ? "bg-primary text-primary-foreground"
+                      : "text-ink-soft hover:bg-muted hover:text-ink"
+                  }`}
+                >
+                  <item.icon className="h-3.5 w-3.5" />
+                  {item.label}
+                </Link>
+              ))}
+            </nav>
+          )}
         </header>
 
         <main className="flex-1 px-4 py-6 lg:px-8 lg:py-8">
