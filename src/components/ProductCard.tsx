@@ -48,6 +48,19 @@ export function ProductCard({ product }: { product: Product }) {
             <span>{product.storeDistance}</span>
           </div>
         </div>
+        {product.paymentMethods && product.paymentMethods.length > 0 && (
+          <div className="flex flex-wrap gap-1">
+            {product.paymentMethods.includes("mtn") && (
+              <span className="rounded-full bg-yellow-500/10 px-2 py-0.5 text-[10px] font-bold text-yellow-600">MTN</span>
+            )}
+            {product.paymentMethods.includes("airtel") && (
+              <span className="rounded-full bg-red-500/10 px-2 py-0.5 text-[10px] font-bold text-red-600">Airtel</span>
+            )}
+            {product.paymentMethods.includes("visa") && (
+              <span className="rounded-full bg-blue-500/10 px-2 py-0.5 text-[10px] font-bold text-blue-600">VISA</span>
+            )}
+          </div>
+        )}
         {product.isFlash && product.flashEnd && (
           <div className="flex items-center justify-between rounded-lg bg-accent/60 px-2.5 py-1.5">
             <span className="text-[10px] font-semibold uppercase tracking-wider text-accent-foreground">Fin dans</span>

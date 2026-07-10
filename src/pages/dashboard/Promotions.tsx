@@ -1,8 +1,7 @@
 import { useEffect, useState } from "react"
 import { useAuth } from "@/contexts/AuthContext"
 import { supabase } from "@/lib/supabase"
-import { Plus, Zap, Eye, Pencil, Trash2, Search, Filter } from "lucide-react"
-import { Link } from "react-router-dom"
+import { Plus, Zap, Eye, Pencil, Trash2, Search, Filter, X, Save } from "lucide-react"
 
 interface Promotion {
   id: string
@@ -15,6 +14,7 @@ interface Promotion {
   category: string
   image: string
   created_at: string
+  payment_methods?: string[]
 }
 
 export default function DashboardPromotions() {
@@ -23,6 +23,42 @@ export default function DashboardPromotions() {
   const [loading, setLoading] = useState(true)
   const [filter, setFilter] = useState<"all" | "active" | "draft" | "expired">("all")
   const [search, setSearch] = useState("")
+  const [showForm, setShowForm] = useState(false)
+  const [form, setForm] = useState({
+    title: "", description: "", discount: 0, original_price: 0, sale_price: 0,
+    category: "", image: "", is_flash: false, status: "draft" as string,
+    payment_methods: ["mtn", "airtel"] as string[],
+  })
+
+  const togglePaymentMethod = (method: string) => {
+    setForm(prev => ({
+      ...prev,
+      payment_methods: prev.payment_methods.includes(method)
+        ? prev.payment_methods.filter(m => m !== method)
+        : [...prev.payment_methods, method]
+    }))
+  }
+
+  const handleSave = async () => {
+    if (!user || !form.title) return
+    await supabase.from("promotions").insert({
+      user_id: user.id,
+      title: form.title,
+      description: form.description,
+      discount: form.discount,
+      original_price: form.original_price,
+      sale_price: form.sale_price,
+      category: form.category,
+      image: form.image,
+      is_flash: form.is_flash,
+      status: form.status,
+      payment_methods: form.payment_methods,
+    })
+    setShowForm(false)
+    setForm({ title: "", description: "", discount: 0, original_price: 0, sale_price: 0, category: "", image: "", is_flash: false, status: "draft", payment_methods: ["mtn", "airtel"] })
+    const { data } = await supabase.from("promotions").select("*").eq("user_id", user.id).order("created_at", { ascending: false })
+    setPromos(data || [])
+  }
 
   useEffect(() => {
     async function fetchPromos() {
@@ -63,7 +99,7 @@ export default function DashboardPromotions() {
           <h1 className="font-display text-2xl font-bold text-ink">Mes promotions</h1>
           <p className="mt-1 text-sm text-ink-soft">Gérez toutes vos offres depuis un seul endroit.</p>
         </div>
-        <button className="inline-flex items-center gap-2 rounded-full gradient-primary px-5 py-2.5 text-sm font-bold text-primary-foreground shadow-glow transition hover:opacity-95">
+        <button onClick={() => setShowForm(true)} className="inline-flex items-center gap-2 rounded-full gradient-primary px-5 py-2.5 text-sm font-bold text-primary-foreground shadow-glow transition hover:opacity-95">
           <Plus className="h-4 w-4" /> Nouvelle promo
         </button>
       </div>
@@ -131,6 +167,13 @@ export default function DashboardPromotions() {
                   <span className="flex items-center gap-1"><Zap className="h-3 w-3" /> {promo.clicks || 0} clics</span>
                   <span>{new Date(promo.created_at).toLocaleDateString("fr-FR")}</span>
                 </div>
+                {promo.payment_methods && promo.payment_methods.length > 0 && (
+                  <div className="mt-1 flex flex-wrap gap-1">
+                    {promo.payment_methods.includes("mtn") && <span className="rounded-full bg-yellow-500/10 px-2 py-0.5 text-[10px] font-bold text-yellow-600">MTN</span>}
+                    {promo.payment_methods.includes("airtel") && <span className="rounded-full bg-red-500/10 px-2 py-0.5 text-[10px] font-bold text-red-600">Airtel</span>}
+                    {promo.payment_methods.includes("visa") && <span className="rounded-full bg-blue-500/10 px-2 py-0.5 text-[10px] font-bold text-blue-600">VISA</span>}
+                  </div>
+                )}
               </div>
               <span className={`shrink-0 rounded-full px-3 py-1 text-xs font-bold ${
                 promo.status === "active" ? "bg-success/10 text-success"
@@ -145,6 +188,59 @@ export default function DashboardPromotions() {
               </div>
             </div>
           ))}
+        </div>
+      )}
+
+      {showForm && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40" onClick={() => setShowForm(false)}>
+          <div className="w-full max-w-lg rounded-3xl bg-card p-6 shadow-xl max-h-[90vh] overflow-y-auto" onClick={e => e.stopPropagation()}>
+            <h3 className="font-display text-lg font-bold text-ink">Nouvelle promotion</h3>
+            <div className="mt-4 space-y-3">
+              <input value={form.title} onChange={e => setForm({ ...form, title: e.target.value })}
+                placeholder="Titre de la promotion" className="h-10 w-full rounded-full border border-border bg-background px-4 text-sm outline-none focus:border-primary" />
+              <textarea value={form.description} onChange={e => setForm({ ...form, description: e.target.value })}
+                placeholder="Description" className="h-20 w-full rounded-2xl border border-border bg-background p-4 text-sm outline-none focus:border-primary" />
+              <div className="grid grid-cols-2 gap-3">
+                <input value={form.discount || ""} onChange={e => setForm({ ...form, discount: parseInt(e.target.value) || 0 })}
+                  placeholder="Réduction %" type="number" className="h-10 w-full rounded-full border border-border bg-background px-4 text-sm outline-none focus:border-primary" />
+                <input value={form.category} onChange={e => setForm({ ...form, category: e.target.value })}
+                  placeholder="Catégorie" className="h-10 w-full rounded-full border border-border bg-background px-4 text-sm outline-none focus:border-primary" />
+                <input value={form.original_price || ""} onChange={e => setForm({ ...form, original_price: parseInt(e.target.value) || 0 })}
+                  placeholder="Prix original (FCFA)" type="number" className="h-10 w-full rounded-full border border-border bg-background px-4 text-sm outline-none focus:border-primary" />
+                <input value={form.sale_price || ""} onChange={e => setForm({ ...form, sale_price: parseInt(e.target.value) || 0 })}
+                  placeholder="Prix promo (FCFA)" type="number" className="h-10 w-full rounded-full border border-border bg-background px-4 text-sm outline-none focus:border-primary" />
+              </div>
+              <input value={form.image} onChange={e => setForm({ ...form, image: e.target.value })}
+                placeholder="URL de l'image" className="h-10 w-full rounded-full border border-border bg-background px-4 text-sm outline-none focus:border-primary" />
+              <label className="flex items-center gap-2 text-sm text-ink">
+                <input type="checkbox" checked={form.is_flash} onChange={e => setForm({ ...form, is_flash: e.target.checked })} />
+                Offre Flash
+              </label>
+              <div>
+                <label className="text-xs font-bold uppercase tracking-widest text-muted-foreground">Moyens de paiement</label>
+                <div className="mt-2 flex flex-wrap gap-2">
+                  {["mtn", "airtel", "visa"].map(m => (
+                    <button key={m} type="button" onClick={() => togglePaymentMethod(m)}
+                      className={`rounded-full px-4 py-2 text-xs font-bold border transition ${
+                        form.payment_methods.includes(m)
+                          ? m === "mtn" ? "bg-yellow-500/10 text-yellow-600 border-yellow-200"
+                            : m === "airtel" ? "bg-red-500/10 text-red-600 border-red-200"
+                            : "bg-blue-500/10 text-blue-600 border-blue-200"
+                          : "border-border/60 text-muted-foreground"
+                      }`}>
+                      {m === "mtn" ? "MTN Mobile Money" : m === "airtel" ? "Airtel Money" : "VISA"}
+                    </button>
+                  ))}
+                </div>
+              </div>
+              <div className="flex gap-2 pt-2">
+                <button onClick={handleSave} className="flex items-center gap-2 rounded-full gradient-primary px-6 py-2.5 text-sm font-bold text-primary-foreground">
+                  <Save className="h-4 w-4" /> Publier
+                </button>
+                <button onClick={() => setShowForm(false)} className="rounded-full border border-border px-6 py-2.5 text-sm font-semibold text-ink">Annuler</button>
+              </div>
+            </div>
+          </div>
         </div>
       )}
     </div>

@@ -48,13 +48,27 @@ export default function PromoDetail() {
               <span className="font-semibold text-ink">Ville :</span> {product.location}
             </div>
           </div>
+          <div className="mt-6">
+            <span className="text-xs font-bold uppercase tracking-widest text-muted-foreground">Moyens de paiement</span>
+            <div className="mt-2 flex flex-wrap gap-2">
+              {product.paymentMethods?.includes("mtn") && (
+                <span className="rounded-full bg-yellow-500/10 px-3 py-1.5 text-xs font-bold text-yellow-600 border border-yellow-200">MTN Mobile Money</span>
+              )}
+              {product.paymentMethods?.includes("airtel") && (
+                <span className="rounded-full bg-red-500/10 px-3 py-1.5 text-xs font-bold text-red-600 border border-red-200">Airtel Money</span>
+              )}
+              {product.paymentMethods?.includes("visa") && (
+                <span className="rounded-full bg-blue-500/10 px-3 py-1.5 text-xs font-bold text-blue-600 border border-blue-200">VISA</span>
+              )}
+            </div>
+          </div>
           {product.isFlash && product.flashEnd && (
             <div className="mt-6 flex items-center gap-2 rounded-xl bg-accent/60 px-4 py-3">
               <span className="text-xs font-semibold uppercase tracking-wider text-accent-foreground">Fin dans</span>
               <span className="font-mono text-sm font-semibold tabular-nums text-accent-foreground">{product.flashEnd}</span>
             </div>
           )}
-          <button className="mt-8 w-full rounded-full gradient-primary px-6 py-3 text-sm font-bold text-primary-foreground shadow-glow hover:opacity-95">
+          <button className="mt-6 w-full rounded-full gradient-primary px-6 py-3 text-sm font-bold text-primary-foreground shadow-glow hover:opacity-95">
             Voir l'offre
           </button>
         </div>

@@ -71,6 +71,7 @@ export interface AdminPromotion {
   views: number
   clicks: number
   created_at: string
+  payment_methods?: string[]
   store_name?: string
   store_slug?: string
   owner_email?: string

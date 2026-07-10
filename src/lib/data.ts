@@ -13,6 +13,7 @@ export interface Product {
   isFlash: boolean
   flashEnd?: string
   location: string
+  paymentMethods?: string[]
 }
 
 export interface Category {
@@ -606,7 +607,12 @@ export const todayProducts: Product[] = [
   },
 ]
 
-export const allProducts: Product[] = [...flashProducts, ...todayProducts]
+const defaultPaymentMethods = ["mtn", "airtel", "visa"]
+
+export const allProducts: Product[] = [...flashProducts, ...todayProducts].map(p => ({
+  ...p,
+  paymentMethods: p.paymentMethods || defaultPaymentMethods,
+}))
 
 export const stores: Store[] = [
   { id: 1, name: "Casino Brazza", category: "🏬", location: "Brazzaville", activePromos: 42, image: "https://images.unsplash.com/photo-1586201375761-83865001e31c?w=600&q=70&auto=format", logoInitial: "CB", logoColor: "text-white", logoGradient: "bg-gradient-to-br from-red-600 to-red-500" },

@@ -106,6 +106,13 @@ export default function AdminAllPromotions() {
                   <span className="flex items-center gap-1"><MousePointerClick className="h-3 w-3" /> {promo.clicks || 0}</span>
                   <span>{new Date(promo.created_at).toLocaleDateString("fr-FR")}</span>
                 </div>
+                {promo.payment_methods && promo.payment_methods.length > 0 && (
+                  <div className="mt-1 flex flex-wrap gap-1">
+                    {promo.payment_methods.includes("mtn") && <span className="rounded-full bg-yellow-500/10 px-2 py-0.5 text-[10px] font-bold text-yellow-600">MTN</span>}
+                    {promo.payment_methods.includes("airtel") && <span className="rounded-full bg-red-500/10 px-2 py-0.5 text-[10px] font-bold text-red-600">Airtel</span>}
+                    {promo.payment_methods.includes("visa") && <span className="rounded-full bg-blue-500/10 px-2 py-0.5 text-[10px] font-bold text-blue-600">VISA</span>}
+                  </div>
+                )}
               </div>
               <div className="flex gap-1">
                 {promo.status !== "expired" && (
