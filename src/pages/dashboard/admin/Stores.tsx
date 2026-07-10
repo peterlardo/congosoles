@@ -22,6 +22,7 @@ export default function AdminStores() {
   const [rejectReason, setRejectReason] = useState("")
   const [page, setPage] = useState(1)
   const [showCreate, setShowCreate] = useState(false)
+  const [saved, setSaved] = useState(false)
   const [newStore, setNewStore] = useState({ name: "", address: "", phone: "", category: "", description: "", district: "", neighborhood: "" })
 
   useEffect(() => {
@@ -271,6 +272,12 @@ export default function AdminStores() {
         </div>
       )}
 
+      {saved && (
+        <div className="fixed bottom-6 right-6 z-50 rounded-2xl bg-success px-5 py-3 text-sm font-bold text-white shadow-lg">
+          ✓ Boutique créée avec succès
+        </div>
+      )}
+
       {showCreate && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40" onClick={() => setShowCreate(false)}>
           <div className="w-full max-w-lg rounded-3xl bg-card p-6 shadow-xl" onClick={e => e.stopPropagation()}>
@@ -312,6 +319,8 @@ export default function AdminStores() {
                   if (error) { alert("Erreur : " + error.message); return }
                   setShowCreate(false)
                   setNewStore({ name: "", address: "", phone: "", category: "", description: "", district: "", neighborhood: "" })
+                  setSaved(true)
+                  setTimeout(() => setSaved(false), 3000)
                   const data = await fetchAdminStores(statusFilter, search)
                   setStores(data)
                 }} className="flex items-center gap-2 rounded-full gradient-primary px-6 py-2.5 text-sm font-bold text-primary-foreground">
