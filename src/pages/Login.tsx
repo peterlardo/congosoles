@@ -30,7 +30,7 @@ export default function Login() {
       <div className="w-full max-w-md">
         <div className="mb-8 text-center">
           <Link to="/" className="inline-flex items-center gap-2">
-            <img src="/assets/logo.png" alt="Congo Soldes" className="h-16 w-16 object-contain" />
+            <img src="/assets/logo.png" alt="Congo Soldes" className="h-24 w-24 object-contain" />
           </Link>
           <h1 className="mt-6 font-display text-3xl font-bold text-ink">Connexion</h1>
           <p className="mt-2 text-sm text-ink-soft">Accédez à votre espace commerçant</p>
