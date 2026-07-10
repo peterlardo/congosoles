@@ -5,7 +5,7 @@ export function Footer() {
       <div className="mx-auto max-w-7xl px-4 py-16 lg:px-8">
         <div className="grid gap-12 lg:grid-cols-[1.4fr_repeat(3,1fr)]">
           <div>
-            <img src="/assets/logo.png" alt="Congo Soldes" className="h-72 w-72 object-contain" />
+            <img src="/assets/logo.png" alt="Congo Soldes" className="h-40 w-40 object-contain" />
             <p className="mt-4 max-w-sm text-sm text-ink-soft">
               La plateforme n°1 des promotions commerciales en République du Congo. Découvrez chaque jour les meilleures offres des commerces près de chez vous.
             </p>
