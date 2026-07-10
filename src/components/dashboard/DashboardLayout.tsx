@@ -2,22 +2,48 @@ import { useState } from "react"
 import { Link, Outlet, useLocation, useNavigate } from "react-router-dom"
 import { useAuth } from "@/contexts/AuthContext"
 import {
-  LayoutDashboard, Zap, Store, Settings, LogOut, Menu, X,
-  ChevronRight, Bell, User
+  LayoutDashboard, Zap, Store, Settings, LogOut, Menu,
+  ChevronRight, Bell, User, ShoppingBag, TrendingUp, Shield,
+  Users, Layers, MapPin, CreditCard, DollarSign, AlertTriangle,
+  MessageSquare, FileText, History, Bell as BellIcon, Megaphone,
+  Crown, Image, Star, ShieldAlert
 } from "lucide-react"
 
-const sidebarLinks = [
-  { to: "/dashboard", label: "Vue d'ensemble", icon: LayoutDashboard },
-  { to: "/dashboard/promotions", label: "Promotions", icon: Zap },
-  { to: "/dashboard/boutique", label: "Ma boutique", icon: Store },
-  { to: "/dashboard/parametres", label: "Paramètres", icon: Settings },
-]
-
 export default function DashboardLayout() {
-  const { user, signOut } = useAuth()
+  const { user, profile, signOut } = useAuth()
   const location = useLocation()
   const navigate = useNavigate()
   const [mobileOpen, setMobileOpen] = useState(false)
+
+  const isAdmin = profile?.role === "super_admin" || profile?.role === "admin" || profile?.role === "moderator"
+  const isSuperAdmin = profile?.role === "super_admin" || profile?.role === "admin"
+
+  const vendorLinks = [
+    { to: "/dashboard", label: "Vue d'ensemble", icon: LayoutDashboard },
+    { to: "/dashboard/promotions", label: "Mes promotions", icon: Zap },
+    { to: "/dashboard/boutique", label: "Ma boutique", icon: Store },
+    { to: "/dashboard/parametres", label: "Paramètres", icon: Settings },
+  ]
+
+  const adminLinks = [
+    { to: "/dashboard", label: "Tableau de bord", icon: LayoutDashboard },
+    { to: "/dashboard/admin/users", label: "Utilisateurs", icon: Users },
+    { to: "/dashboard/admin/stores", label: "Boutiques", icon: ShoppingBag },
+    { to: "/dashboard/admin/promotions", label: "Promotions", icon: Zap },
+    { to: "/dashboard/admin/categories", label: "Catégories", icon: Layers },
+    { to: "/dashboard/admin/locations", label: "Localisations", icon: MapPin },
+    { to: "/dashboard/admin/subscriptions", label: "Abonnements", icon: Crown },
+    { to: "/dashboard/admin/payments", label: "Paiements", icon: DollarSign },
+    { to: "/dashboard/admin/reports", label: "Signalements", icon: AlertTriangle },
+    { to: "/dashboard/admin/notifications", label: "Notifications", icon: BellIcon },
+    { to: "/dashboard/admin/cms", label: "Pages CMS", icon: FileText },
+    { to: "/dashboard/admin/support", label: "Support", icon: MessageSquare },
+    { to: "/dashboard/admin/activity", label: "Journal activité", icon: History },
+    { to: "/dashboard/admin/trends", label: "Tendances", icon: TrendingUp },
+    { to: "/dashboard/admin/settings", label: "Paramètres", icon: Settings },
+  ]
+
+  const sidebarLinks = isAdmin ? adminLinks : vendorLinks
 
   const handleLogout = async () => {
     await signOut()
@@ -35,9 +61,16 @@ export default function DashboardLayout() {
         <img src="/assets/logo.png" alt="Congo Soldes" className="h-10 w-10 object-contain" />
         <div>
           <div className="font-display text-sm font-bold text-ink">Congo Soldes</div>
-          <div className="text-xs text-muted-foreground">Espace commerçant</div>
+          <div className="text-xs text-muted-foreground">{isAdmin ? "Administration" : "Espace commerçant"}</div>
         </div>
       </div>
+
+      {isAdmin && (
+        <div className="mx-3 mt-3 flex items-center gap-2 rounded-xl bg-primary/10 px-3 py-2">
+          <Shield className="h-4 w-4 text-primary" />
+          <span className="text-xs font-bold text-primary">{profile?.role === "super_admin" ? "Super Admin" : "Administrateur"}</span>
+        </div>
+      )}
 
       <nav className="flex-1 space-y-1 px-3 py-4">
         {sidebarLinks.map((link) => (
@@ -65,7 +98,7 @@ export default function DashboardLayout() {
           </div>
           <div className="min-w-0 flex-1">
             <div className="truncate text-sm font-semibold text-ink">
-              {user?.user_metadata?.name || user?.email?.split("@")[0] || "Commerçant"}
+              {profile?.name || user?.email?.split("@")[0] || "Utilisateur"}
             </div>
             <div className="truncate text-xs text-muted-foreground">{user?.email}</div>
           </div>
@@ -104,9 +137,9 @@ export default function DashboardLayout() {
           </button>
           <div className="hidden sm:block text-right">
             <div className="text-sm font-semibold text-ink">
-              {user?.user_metadata?.name || "Commerçant"}
+              {profile?.name || user?.user_metadata?.name || "Utilisateur"}
             </div>
-            <div className="text-xs text-muted-foreground">Plan Gratuit</div>
+            <div className="text-xs text-muted-foreground">{isSuperAdmin ? "Super Admin" : isAdmin ? "Administrateur" : "Plan Gratuit"}</div>
           </div>
         </header>
 

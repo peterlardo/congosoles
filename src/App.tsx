@@ -9,10 +9,25 @@ import Promos from "@/pages/Promos"
 import Boutiques from "@/pages/Boutiques"
 import Login from "@/pages/Login"
 import Signup from "@/pages/Signup"
+import AuthCallback from "@/pages/AuthCallback"
 import DashboardOverview from "@/pages/dashboard/Overview"
 import DashboardPromotions from "@/pages/dashboard/Promotions"
 import DashboardBoutique from "@/pages/dashboard/Boutique"
 import DashboardParametres from "@/pages/dashboard/Parametres"
+import AdminStores from "@/pages/dashboard/admin/Stores"
+import AdminAllPromotions from "@/pages/dashboard/admin/AllPromotions"
+import AdminTrends from "@/pages/dashboard/admin/Trends"
+import AdminUsers from "@/pages/dashboard/admin/Users"
+import AdminCategories from "@/pages/dashboard/admin/Categories"
+import AdminLocations from "@/pages/dashboard/admin/Locations"
+import AdminSubscriptions from "@/pages/dashboard/admin/Subscriptions"
+import AdminPayments from "@/pages/dashboard/admin/Payments"
+import AdminReports from "@/pages/dashboard/admin/Reports"
+import AdminNotifications from "@/pages/dashboard/admin/Notifications"
+import AdminCMSPages from "@/pages/dashboard/admin/CMSPages"
+import AdminSupport from "@/pages/dashboard/admin/Support"
+import AdminActivityLog from "@/pages/dashboard/admin/ActivityLog"
+import AdminSettings from "@/pages/dashboard/admin/Settings"
 import Category from "@/pages/Category"
 import PromoDetail from "@/pages/PromoDetail"
 import StoreDetail from "@/pages/StoreDetail"
@@ -37,6 +52,7 @@ function App() {
             {/* Auth pages - no header/footer */}
             <Route path="/login" element={<Login />} />
             <Route path="/signup" element={<Signup />} />
+            <Route path="/auth/callback" element={<AuthCallback />} />
 
             {/* Dashboard - no header/footer, custom layout */}
             <Route
@@ -51,6 +67,20 @@ function App() {
               <Route path="promotions" element={<DashboardPromotions />} />
               <Route path="boutique" element={<DashboardBoutique />} />
               <Route path="parametres" element={<DashboardParametres />} />
+              <Route path="admin/users" element={<AdminUsers />} />
+              <Route path="admin/stores" element={<AdminStores />} />
+              <Route path="admin/promotions" element={<AdminAllPromotions />} />
+              <Route path="admin/categories" element={<AdminCategories />} />
+              <Route path="admin/locations" element={<AdminLocations />} />
+              <Route path="admin/subscriptions" element={<AdminSubscriptions />} />
+              <Route path="admin/payments" element={<AdminPayments />} />
+              <Route path="admin/reports" element={<AdminReports />} />
+              <Route path="admin/notifications" element={<AdminNotifications />} />
+              <Route path="admin/cms" element={<AdminCMSPages />} />
+              <Route path="admin/support" element={<AdminSupport />} />
+              <Route path="admin/activity" element={<AdminActivityLog />} />
+              <Route path="admin/trends" element={<AdminTrends />} />
+              <Route path="admin/settings" element={<AdminSettings />} />
             </Route>
 
             {/* Public pages - with header/footer */}
