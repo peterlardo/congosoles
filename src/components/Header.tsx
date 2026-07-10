@@ -20,7 +20,7 @@ export function Header() {
             </div>
           </Link>
 
-          <form className="hidden min-w-0 flex-1 max-w-sm items-center rounded-full border border-border bg-card p-1 shadow-card md:flex">
+          <form className="hidden min-w-0 flex-1 max-w-xl items-center rounded-full border border-border bg-card p-1 shadow-card md:flex">
             <Search className="ml-3 h-4 w-4 shrink-0 text-muted-foreground" />
             <input
               type="search"
