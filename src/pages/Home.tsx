@@ -1,5 +1,4 @@
 import { Hero } from "@/components/Hero"
-import { TopOffer } from "@/components/TopOffer"
 import { CategoriesGrid } from "@/components/CategoriesGrid"
 import { FlashSales } from "@/components/FlashSales"
 import { TodayPromos } from "@/components/TodayPromos"
@@ -12,7 +11,6 @@ export default function Home() {
   return (
     <main>
       <Hero />
-      <TopOffer />
       <CategoriesGrid />
       <FlashSales />
       <TodayPromos />
