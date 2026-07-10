@@ -3,6 +3,7 @@ import { supabase } from "@/lib/supabase"
 import { fetchAdminPromotions, updatePromoStatus, togglePromoFeature, deletePromotion } from "@/lib/admin"
 import { Zap, Eye, MousePointerClick, Search, Store, Check, X, Trash2, Star, AlertTriangle } from "lucide-react"
 import type { AdminPromotion } from "@/types/admin"
+import Pagination from "@/components/Pagination"
 
 export default function AdminAllPromotions() {
   const [promos, setPromos] = useState<AdminPromotion[]>([])
@@ -11,10 +12,17 @@ export default function AdminAllPromotions() {
   const [search, setSearch] = useState("")
   const [rejectTarget, setRejectTarget] = useState<AdminPromotion | null>(null)
   const [rejectReason, setRejectReason] = useState("")
+  const [page, setPage] = useState(1)
 
   useEffect(() => {
     fetchAdminPromotions(filter, search).then(data => { setPromos(data); setLoading(false) })
   }, [filter, search])
+
+  const pageSize = 6
+  const totalPages = Math.ceil(promos.length / pageSize)
+  const paged = promos.slice((page - 1) * pageSize, page * pageSize)
+
+  useEffect(() => { setPage(1) }, [search, filter])
 
   const handleStatus = async (id: string, status: string, reason?: string) => {
     await updatePromoStatus(id, status, reason)
@@ -74,7 +82,7 @@ export default function AdminAllPromotions() {
         </div>
       ) : (
         <div className="space-y-3">
-          {promos.map(promo => (
+          {paged.map(promo => (
             <div key={promo.id} className="flex items-center gap-4 rounded-2xl border border-border/60 bg-card p-4 shadow-card transition hover:-translate-y-0.5 hover:shadow-lift">
               <div className="h-14 w-14 shrink-0 overflow-hidden rounded-xl bg-muted">
                 {promo.image ? <img src={promo.image} alt={promo.title} className="h-full w-full object-cover" />
@@ -125,6 +133,7 @@ export default function AdminAllPromotions() {
               </div>
             </div>
           ))}
+          <Pagination current={page} total={promos.length} pageSize={pageSize} onChange={setPage} />
         </div>
       )}
     </div>

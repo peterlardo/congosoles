@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react"
+import Pagination from "@/components/Pagination"
 import { supabase } from "@/lib/supabase"
 import { fetchReports, updateReportStatus, deleteReport } from "@/lib/admin"
 import { AlertTriangle, Trash2, Search, Check, X, Eye, MessageCircle, Flag } from "lucide-react"
@@ -10,12 +11,17 @@ export default function AdminReports() {
   const [filter, setFilter] = useState("pending")
   const [selected, setSelected] = useState<Report | null>(null)
   const [notes, setNotes] = useState("")
+  const [page, setPage] = useState(1)
+  const pageSize = 6
 
   useEffect(() => {
     fetchReports().then(data => { setReports(data); setLoading(false) })
   }, [])
 
   const filtered = filter === "all" ? reports : reports.filter(r => r.status === filter)
+  const paged = filtered.slice((page - 1) * pageSize, page * pageSize)
+
+  useEffect(() => setPage(1), [filter])
 
   const handleResolve = async (id: string, status: string) => {
     await updateReportStatus(id, status, notes)
@@ -51,7 +57,7 @@ export default function AdminReports() {
         <div className="space-y-3">{[1,2,3].map(i => <div key={i} className="h-20 animate-pulse rounded-2xl bg-muted" />)}</div>
       ) : (
         <div className="space-y-3">
-          {filtered.map(report => (
+          {paged.map(report => (
             <div key={report.id}
               className="flex items-center gap-4 rounded-2xl border border-border/60 bg-card p-4 shadow-card cursor-pointer transition hover:-translate-y-0.5 hover:shadow-lift"
               onClick={() => { setSelected(report); setNotes(report.resolution_notes || "") }}>
@@ -84,6 +90,9 @@ export default function AdminReports() {
               <Flag className="mx-auto h-8 w-8 text-muted-foreground" />
               <p className="mt-2 text-sm text-ink-soft">Aucun signalement</p>
             </div>
+          )}
+          {filtered.length > pageSize && (
+            <Pagination current={page} total={filtered.length} pageSize={pageSize} onChange={setPage} />
           )}
         </div>
       )}

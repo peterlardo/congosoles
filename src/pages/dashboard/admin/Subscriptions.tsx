@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react"
+import Pagination from "@/components/Pagination"
 import { fetchSubscriptions, cancelSubscription, updateSubscription, fetchSubscriptionPlans, saveSubscriptionPlan, deleteSubscriptionPlan } from "@/lib/admin"
 import { CreditCard, Search, Plus, Trash2, Edit3, X, Check } from "lucide-react"
 import type { Subscription, SubscriptionPlan } from "@/types/admin"
@@ -14,6 +15,8 @@ export default function AdminSubscriptions() {
   const [editingPlan, setEditingPlan] = useState<SubscriptionPlan | null>(null)
   const [confirmCancel, setConfirmCancel] = useState<string | null>(null)
   const [confirmDeletePlan, setConfirmDeletePlan] = useState<string | null>(null)
+  const [page, setPage] = useState(1)
+  const pageSize = 6
 
   const loadSubscriptions = async () => {
     setSubscriptions(await fetchSubscriptions())
@@ -56,6 +59,9 @@ export default function AdminSubscriptions() {
   }
 
   const filteredSubs = statusFilter === "all" ? subscriptions : subscriptions.filter(s => s.status === statusFilter)
+  const paged = filteredSubs.slice((page - 1) * pageSize, page * pageSize)
+
+  useEffect(() => setPage(1), [filteredSubs.length])
 
   return (
     <div className="space-y-6">
@@ -98,7 +104,7 @@ export default function AdminSubscriptions() {
             <div className="space-y-3">{[1,2,3].map(i => <div key={i} className="h-16 animate-pulse rounded-2xl bg-muted" />)}</div>
           ) : (
             <div className="space-y-3">
-              {filteredSubs.map(sub => (
+              {paged.map(sub => (
                 <div key={sub.id} className="flex items-center gap-4 rounded-2xl border border-border/60 bg-card p-4 shadow-card">
                   <div className="grid h-10 w-10 shrink-0 place-items-center rounded-xl bg-primary/10 text-primary">
                     <CreditCard className="h-5 w-5" />
@@ -126,6 +132,9 @@ export default function AdminSubscriptions() {
               ))}
               {filteredSubs.length === 0 && (
                 <p className="py-8 text-center text-sm text-muted-foreground">Aucun abonnement trouvé.</p>
+              )}
+              {filteredSubs.length > pageSize && (
+                <Pagination current={page} total={filteredSubs.length} pageSize={pageSize} onChange={setPage} />
               )}
             </div>
           )}

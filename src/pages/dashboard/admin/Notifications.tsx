@@ -3,6 +3,7 @@ import { supabase } from "@/lib/supabase"
 import { sendNotification, deleteNotification } from "@/lib/admin"
 import { Bell, Send, Trash2, Users, Store, Tag } from "lucide-react"
 import type { Notification } from "@/types/admin"
+import Pagination from "@/components/Pagination"
 
 export default function AdminNotifications() {
   const [notifications, setNotifications] = useState<Notification[]>([])
@@ -12,6 +13,9 @@ export default function AdminNotifications() {
     type: "system", title: "", body: "", channel: "internal" as const,
     target_audience: "all", target_value: ""
   })
+  const [page, setPage] = useState(1)
+  const pageSize = 6
+  const paged = notifications.slice((page - 1) * pageSize, page * pageSize)
 
   const load = async () => {
     const { data } = await supabase.from("notifications").select("*").order("created_at", { ascending: false }).limit(50)
@@ -20,6 +24,8 @@ export default function AdminNotifications() {
   }
 
   useEffect(() => { load() }, [])
+
+  useEffect(() => setPage(1), [notifications])
 
   const handleSend = async () => {
     await sendNotification(form as Notification)
@@ -85,7 +91,7 @@ export default function AdminNotifications() {
         <div className="space-y-3">{[1,2,3].map(i => <div key={i} className="h-16 animate-pulse rounded-2xl bg-muted" />)}</div>
       ) : (
         <div className="space-y-2">
-          {notifications.map(n => (
+          {paged.map(n => (
             <div key={n.id} className="flex items-center gap-4 rounded-2xl border border-border/60 bg-card p-4 shadow-card group">
               <div className={`grid h-10 w-10 shrink-0 place-items-center rounded-xl ${
                 n.type === "system" ? "bg-primary/10 text-primary"
@@ -104,6 +110,7 @@ export default function AdminNotifications() {
               </button>
             </div>
           ))}
+          <Pagination current={page} total={notifications.length} pageSize={pageSize} onChange={setPage} />
         </div>
       )}
     </div>

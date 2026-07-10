@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react"
+import Pagination from "@/components/Pagination"
 import { fetchPayments, updatePaymentStatus, deletePayment } from "@/lib/admin"
 import { DollarSign, RotateCcw, X, Check, Trash2, Search } from "lucide-react"
 import type { Payment } from "@/types/admin"
@@ -7,6 +8,8 @@ export default function AdminPayments() {
   const [payments, setPayments] = useState<Payment[]>([])
   const [loading, setLoading] = useState(true)
   const [selected, setSelected] = useState<Payment | null>(null)
+  const [page, setPage] = useState(1)
+  const pageSize = 6
 
   const load = () => fetchPayments().then(data => { setPayments(data); setLoading(false) })
 
@@ -26,6 +29,10 @@ export default function AdminPayments() {
     setSelected(null)
   }
 
+  const paged = payments.slice((page - 1) * pageSize, page * pageSize)
+
+  useEffect(() => setPage(1), [payments.length])
+
   return (
     <div className="space-y-6">
       <div>
@@ -37,7 +44,7 @@ export default function AdminPayments() {
         <div className="space-y-3">{[1,2,3].map(i => <div key={i} className="h-16 animate-pulse rounded-2xl bg-muted" />)}</div>
       ) : (
         <div className="space-y-3">
-          {payments.map(p => (
+          {paged.map(p => (
             <div key={p.id}
               className="flex items-center gap-4 rounded-2xl border border-border/60 bg-card p-4 shadow-card cursor-pointer transition hover:-translate-y-0.5 hover:shadow-lift"
               onClick={() => setSelected(p)}>
@@ -61,6 +68,9 @@ export default function AdminPayments() {
               </div>
             </div>
           ))}
+          {payments.length > pageSize && (
+            <Pagination current={page} total={payments.length} pageSize={pageSize} onChange={setPage} />
+          )}
         </div>
       )}
 

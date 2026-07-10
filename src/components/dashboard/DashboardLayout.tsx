@@ -27,6 +27,7 @@ export default function DashboardLayout() {
 
   const adminLinks = [
     { to: "/dashboard", label: "Tableau de bord", icon: LayoutDashboard },
+    { to: "/dashboard/admin/trends", label: "Tendances", icon: TrendingUp },
     { to: "/dashboard/admin/users", label: "Utilisateurs", icon: Users },
     { to: "/dashboard/admin/stores", label: "Boutiques", icon: ShoppingBag },
     { to: "/dashboard/admin/promotions", label: "Promotions", icon: Zap },
@@ -40,7 +41,6 @@ export default function DashboardLayout() {
     { to: "/dashboard/admin/cms", label: "Pages CMS", icon: FileText },
     { to: "/dashboard/admin/support", label: "Support", icon: MessageSquare },
     { to: "/dashboard/admin/activity", label: "Journal activité", icon: History },
-    { to: "/dashboard/admin/trends", label: "Tendances", icon: TrendingUp },
     { to: "/dashboard/admin/settings", label: "Paramètres", icon: Settings },
   ]
 
@@ -59,7 +59,7 @@ export default function DashboardLayout() {
   const Sidebar = ({ className = "" }: { className?: string }) => (
     <aside className={`flex flex-col bg-primary text-primary-foreground border-r border-white/10 ${className}`}>
       <div className="flex items-center gap-3 px-6 py-5 border-b border-white/10">
-        <img src="/assets/logo.png" alt="Congo Soldes" className="h-14 w-14 object-contain brightness-0 invert" />
+        <img src="/assets/logo.png" alt="Congo Soldes" className="h-14 w-14 object-contain" style={{ filter: "brightness(0) invert(1)" }} />
         <div>
           <div className="font-display text-sm font-bold text-white">Congo Soldes</div>
           <div className="text-xs text-white">{isAdmin ? "Administration" : "Espace commerçant"}</div>
@@ -112,7 +112,7 @@ export default function DashboardLayout() {
   )
 
   return (
-    <div className="flex h-screen bg-background">
+    <div className="flex min-h-screen bg-background">
       <div className="hidden lg:flex lg:w-64 lg:flex-col">
         <Sidebar />
       </div>
@@ -144,7 +144,7 @@ export default function DashboardLayout() {
           </div>
         </header>
 
-        <main className="flex-1 overflow-y-auto px-4 py-6 lg:px-8 lg:py-8">
+        <main className="flex-1 px-4 py-6 lg:px-8 lg:py-8">
           <Outlet />
         </main>
       </div>

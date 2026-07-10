@@ -3,6 +3,7 @@ import { supabase } from "@/lib/supabase"
 import { fetchContractTemplates, saveContractTemplate, deleteContractTemplate, fetchContracts, saveContract, deleteContract } from "@/lib/admin"
 import { FileText, Plus, Edit3, Trash2, Save, X, Check, Download, Eye, FileSignature } from "lucide-react"
 import type { ContractTemplate, Contract } from "@/types/admin"
+import Pagination from "@/components/Pagination"
 
 export default function AdminContracts() {
   const [tab, setTab] = useState<"templates" | "contracts">("templates")
@@ -14,12 +15,20 @@ export default function AdminContracts() {
   const [preview, setPreview] = useState<ContractTemplate | null>(null)
   const [generate, setGenerate] = useState<{ template: ContractTemplate; storeId: string; storeName: string; vars: Record<string, string> } | null>(null)
   const [viewContract, setViewContract] = useState<Contract | null>(null)
+  const [page, setPage] = useState(1)
+  const [page2, setPage2] = useState(1)
+  const pageSize = 6
 
   useEffect(() => {
     Promise.all([fetchContractTemplates(), fetchContracts()]).then(([t, c]) => {
       setTemplates(t); setContracts(c); setLoading(false)
     })
   }, [])
+
+  useEffect(() => setPage(1), [tab])
+
+  const pagedTemplates = templates.slice((page - 1) * pageSize, page * pageSize)
+  const pagedContracts = contracts.slice((page2 - 1) * pageSize, page2 * pageSize)
 
   const handleSaveTemplate = async () => {
     if (!editingTemplate?.title || !editingTemplate?.content) return
@@ -121,7 +130,7 @@ export default function AdminContracts() {
             </button>
           </div>
           <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-            {templates.map(tpl => (
+            {pagedTemplates.map(tpl => (
               <div key={tpl.id} className="rounded-2xl border border-border/60 bg-card p-5 shadow-card flex flex-col">
                 <div className="flex items-start justify-between">
                   <div className="grid h-10 w-10 shrink-0 place-items-center rounded-xl bg-primary/10 text-primary">
@@ -154,11 +163,12 @@ export default function AdminContracts() {
               </div>
             ))}
           </div>
+          <Pagination current={page} total={templates.length} pageSize={pageSize} onChange={setPage} />
         </>
       ) : (
         <>
           <div className="space-y-2">
-            {contracts.map(contract => (
+            {pagedContracts.map(contract => (
               <div key={contract.id} className="flex items-center gap-4 rounded-2xl border border-border/60 bg-card p-4 shadow-card">
                 <div className={`grid h-10 w-10 shrink-0 place-items-center rounded-xl ${
                   contract.status === "signed" ? "bg-success/10 text-success"
@@ -191,6 +201,7 @@ export default function AdminContracts() {
                 </div>
               </div>
             ))}
+            <Pagination current={page2} total={contracts.length} pageSize={pageSize} onChange={setPage2} />
             {contracts.length === 0 && (
               <div className="rounded-2xl border border-border/60 bg-card p-12 text-center">
                 <FileText className="mx-auto h-8 w-8 text-muted-foreground" />

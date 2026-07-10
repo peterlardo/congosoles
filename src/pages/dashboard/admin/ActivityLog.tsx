@@ -2,14 +2,20 @@ import { useEffect, useState } from "react"
 import { fetchActivityLogs } from "@/lib/admin"
 import { History, Search } from "lucide-react"
 import type { ActivityLog } from "@/types/admin"
+import Pagination from "@/components/Pagination"
 
 export default function AdminActivityLog() {
   const [logs, setLogs] = useState<ActivityLog[]>([])
   const [loading, setLoading] = useState(true)
+  const [page, setPage] = useState(1)
+  const pageSize = 6
+  const paged = logs.slice((page - 1) * pageSize, page * pageSize)
 
   useEffect(() => {
     fetchActivityLogs(200).then(data => { setLogs(data); setLoading(false) })
   }, [])
+
+  useEffect(() => setPage(1), [logs])
 
   return (
     <div className="space-y-6">
@@ -22,7 +28,7 @@ export default function AdminActivityLog() {
         <div className="space-y-3">{[1,2,3,4,5].map(i => <div key={i} className="h-14 animate-pulse rounded-2xl bg-muted" />)}</div>
       ) : (
         <div className="space-y-2">
-          {logs.map(log => (
+          {paged.map(log => (
             <div key={log.id} className="flex items-center gap-4 rounded-2xl border border-border/60 bg-card p-3 shadow-card">
               <div className="grid h-8 w-8 shrink-0 place-items-center rounded-lg bg-primary/10 text-primary">
                 <History className="h-4 w-4" />
@@ -40,6 +46,7 @@ export default function AdminActivityLog() {
               </div>
             </div>
           ))}
+          <Pagination current={page} total={logs.length} pageSize={pageSize} onChange={setPage} />
           {logs.length === 0 && (
             <div className="rounded-2xl border border-border/60 bg-card p-12 text-center">
               <History className="mx-auto h-8 w-8 text-muted-foreground" />

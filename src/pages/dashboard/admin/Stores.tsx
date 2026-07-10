@@ -4,6 +4,7 @@ import { fetchAdminStores, updateStoreStatus, toggleStoreBadge, deleteStore } fr
 import { Store, Search, MapPin, Check, X, Ban, ShieldCheck, Crown, Trash2, Edit3, Save } from "lucide-react"
 import { Link } from "react-router-dom"
 import type { AdminStore } from "@/types/admin"
+import Pagination from "@/components/Pagination"
 
 export default function AdminStores() {
   const [stores, setStores] = useState<AdminStore[]>([])
@@ -15,10 +16,17 @@ export default function AdminStores() {
   const [rejectModal, setRejectModal] = useState<AdminStore | null>(null)
   const [deleteModal, setDeleteModal] = useState<AdminStore | null>(null)
   const [rejectReason, setRejectReason] = useState("")
+  const [page, setPage] = useState(1)
 
   useEffect(() => {
     fetchAdminStores(statusFilter, search).then(data => { setStores(data); setLoading(false) })
   }, [search, statusFilter])
+
+  const pageSize = 6
+  const totalPages = Math.ceil(stores.length / pageSize)
+  const paged = stores.slice((page - 1) * pageSize, page * pageSize)
+
+  useEffect(() => { setPage(1) }, [search, statusFilter])
 
   const handleStatus = async (id: string, status: string, reason?: string) => {
     await updateStoreStatus(id, status, reason)
@@ -96,7 +104,7 @@ export default function AdminStores() {
         </div>
       ) : (
         <div className="space-y-3">
-          {stores.map(store => (
+          {paged.map(store => (
             <div key={store.id} onClick={() => setSelected(store)}
               className="flex cursor-pointer items-center gap-4 rounded-2xl border border-border/60 bg-card p-4 shadow-card transition hover:-translate-y-0.5 hover:shadow-lift">
               <div className="grid h-14 w-14 shrink-0 place-items-center rounded-xl bg-primary/10 text-primary text-lg font-bold">
@@ -156,6 +164,7 @@ export default function AdminStores() {
               </div>
             </div>
           ))}
+          <Pagination current={page} total={stores.length} pageSize={pageSize} onChange={setPage} />
         </div>
       )}
 

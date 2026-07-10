@@ -3,6 +3,7 @@ import { supabase } from "@/lib/supabase"
 import { fetchUsers, updateUserRole, deleteUser } from "@/lib/admin"
 import { Search, User, Plus, Trash2, X, Check } from "lucide-react"
 import type { AdminProfile } from "@/types/admin"
+import Pagination from "@/components/Pagination"
 
 const roles = ["super_admin", "admin", "moderator", "vendor", "shop_manager", "client"]
 
@@ -14,6 +15,7 @@ export default function AdminUsers() {
   const [showCreate, setShowCreate] = useState(false)
   const [deleteConfirm, setDeleteConfirm] = useState<string | null>(null)
   const [newUser, setNewUser] = useState({ email: "", password: "", name: "", role: "client" })
+  const [page, setPage] = useState(1)
 
   useEffect(() => {
     fetchUsers().then(data => { setUsers(data); setLoading(false) })
@@ -22,6 +24,12 @@ export default function AdminUsers() {
   const filtered = users.filter(u =>
     !search || u.name?.toLowerCase().includes(search.toLowerCase()) || u.email?.toLowerCase().includes(search.toLowerCase())
   )
+
+  const pageSize = 6
+  const totalPages = Math.ceil(filtered.length / pageSize)
+  const paged = filtered.slice((page - 1) * pageSize, page * pageSize)
+
+  useEffect(() => { setPage(1) }, [search])
 
   const handleRoleChange = async (userId: string, role: string) => {
     await updateUserRole(userId, role)
@@ -75,7 +83,7 @@ export default function AdminUsers() {
         <div className="space-y-3">{[1,2,3,4,5].map(i => <div key={i} className="h-16 animate-pulse rounded-2xl bg-muted" />)}</div>
       ) : (
         <div className="space-y-2">
-          {filtered.map(user => (
+          {paged.map(user => (
             <div key={user.id} className="flex items-center gap-4 rounded-2xl border border-border/60 bg-card p-4 shadow-card">
               <div className="grid h-10 w-10 shrink-0 place-items-center rounded-full bg-primary/10 text-primary text-sm font-bold">
                 {user.name?.charAt(0).toUpperCase() || "?"}
@@ -115,6 +123,7 @@ export default function AdminUsers() {
               </div>
             </div>
           ))}
+          <Pagination current={page} total={filtered.length} pageSize={pageSize} onChange={setPage} />
           {filtered.length === 0 && (
             <div className="rounded-2xl border border-border/60 bg-card p-12 text-center">
               <User className="mx-auto h-8 w-8 text-muted-foreground" />

@@ -3,6 +3,7 @@ import { supabase } from "@/lib/supabase"
 import { fetchTickets, updateTicketStatus, assignTicket } from "@/lib/admin"
 import { MessageSquare, Search, ChevronDown, Send, User, Check, X, RotateCcw } from "lucide-react"
 import type { SupportTicket, TicketMessage } from "@/types/admin"
+import Pagination from "@/components/Pagination"
 
 export default function AdminSupport() {
   const [tickets, setTickets] = useState<SupportTicket[]>([])
@@ -10,12 +11,17 @@ export default function AdminSupport() {
   const [filter, setFilter] = useState("open")
   const [selected, setSelected] = useState<SupportTicket | null>(null)
   const [reply, setReply] = useState("")
+  const [page, setPage] = useState(1)
+  const pageSize = 6
 
   useEffect(() => {
     fetchTickets().then(data => { setTickets(data); setLoading(false) })
   }, [])
 
+  useEffect(() => setPage(1), [filter])
+
   const filtered = filter === "all" ? tickets : tickets.filter(t => t.status === filter)
+  const paged = filtered.slice((page - 1) * pageSize, page * pageSize)
 
   const selectTicket = async (ticket: SupportTicket) => {
     setSelected(ticket)
@@ -56,7 +62,7 @@ export default function AdminSupport() {
   }
 
   return (
-    <div className="flex h-[calc(100vh-8rem)] gap-6">
+    <div className="flex min-h-[500px] gap-6">
       <div className="w-96 shrink-0 space-y-4">
         <div>
           <h1 className="font-display text-2xl font-bold text-ink">Support</h1>
@@ -72,7 +78,7 @@ export default function AdminSupport() {
         </div>
         <div className="space-y-2 overflow-y-auto" style={{ maxHeight: "calc(100vh - 16rem)" }}>
           {loading ? [1,2,3,4].map(i => <div key={i} className="h-20 animate-pulse rounded-2xl bg-muted" />)
-          : filtered.map(ticket => (
+          : paged.map(ticket => (
             <div key={ticket.id} onClick={() => selectTicket(ticket)}
               className={`cursor-pointer rounded-2xl border p-4 transition hover:-translate-y-0.5 ${
                 selected?.id === ticket.id ? "border-primary bg-primary/5" : "border-border/60 bg-card"
@@ -92,6 +98,7 @@ export default function AdminSupport() {
               </div>
             </div>
           ))}
+          <Pagination current={page} total={filtered.length} pageSize={pageSize} onChange={setPage} />
         </div>
       </div>
 
