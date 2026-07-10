@@ -6,6 +6,7 @@ import { StoresSection } from "@/components/StoresSection"
 import { HowItWorks } from "@/components/HowItWorks"
 import { ForBusiness } from "@/components/ForBusiness"
 import { Trending } from "@/components/Trending"
+import { PricingSection } from "@/components/PricingSection"
 
 export default function Home() {
   return (
@@ -18,6 +19,7 @@ export default function Home() {
       <HowItWorks />
       <ForBusiness />
       <Trending />
+      <PricingSection />
     </main>
   )
 }

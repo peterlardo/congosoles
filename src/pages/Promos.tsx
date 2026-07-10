@@ -11,7 +11,7 @@ const uniqueStores = new Set(allProducts.map((p) => p.store)).size
 export default function Promos() {
   return (
     <main>
-      <section className="relative overflow-hidden bg-gradient-to-br from-primary/90 via-primary/75 to-primary/55">
+      <section className="relative overflow-hidden bg-gradient-to-br from-orange-600 via-orange-500 to-red-500">
         <div className="absolute inset-0 bg-[radial-gradient(circle_at_top_right,white,transparent_55%)] opacity-10" />
         <div className="absolute inset-0 bg-[radial-gradient(circle_at_bottom_left,white,transparent_40%)] opacity-5" />
         <div className="relative mx-auto max-w-7xl px-4 py-10 sm:py-14 lg:px-8 lg:py-16">
