@@ -20,10 +20,10 @@ export function Footer() {
           <div>
             <h4 className="mb-4 text-xs font-bold uppercase tracking-widest text-ink">Découvrir</h4>
             <ul className="space-y-2.5 text-sm">
-              <li><Link to="/" className="text-ink-soft transition hover:text-primary">Promotions du jour</Link></li>
-              <li><Link to="/" className="text-ink-soft transition hover:text-primary">Offres flash</Link></li>
-              <li><Link to="/" className="text-ink-soft transition hover:text-primary">Grandes enseignes</Link></li>
-              <li><Link to="/" className="text-ink-soft transition hover:text-primary">Boutiques populaires</Link></li>
+              <li><Link to="/promos" className="text-ink-soft transition hover:text-primary">Promotions du jour</Link></li>
+              <li><Link to="/promos" className="text-ink-soft transition hover:text-primary">Offres flash</Link></li>
+              <li><Link to="/boutiques" className="text-ink-soft transition hover:text-primary">Grandes enseignes</Link></li>
+              <li><Link to="/boutiques" className="text-ink-soft transition hover:text-primary">Boutiques populaires</Link></li>
               <li><Link to="/" className="text-ink-soft transition hover:text-primary">Catégories</Link></li>
             </ul>
           </div>
@@ -31,22 +31,22 @@ export function Footer() {
           <div>
             <h4 className="mb-4 text-xs font-bold uppercase tracking-widest text-ink">Commerçants</h4>
             <ul className="space-y-2.5 text-sm">
-              <li><Link to="/" className="text-ink-soft transition hover:text-primary">Ouvrir une boutique</Link></li>
-              <li><Link to="/" className="text-ink-soft transition hover:text-primary">Tarifs & abonnements</Link></li>
-              <li><Link to="/" className="text-ink-soft transition hover:text-primary">Publicité sponsorisée</Link></li>
-              <li><Link to="/" className="text-ink-soft transition hover:text-primary">Guide vendeur</Link></li>
-              <li><Link to="/" className="text-ink-soft transition hover:text-primary">Centre d'aide</Link></li>
+              <li><Link to="/dashboard" className="text-ink-soft transition hover:text-primary">Ouvrir une boutique</Link></li>
+              <li><Link to="/dashboard" className="text-ink-soft transition hover:text-primary">Tarifs & abonnements</Link></li>
+              <li><Link to="/dashboard" className="text-ink-soft transition hover:text-primary">Publicité sponsorisée</Link></li>
+              <li><Link to="/dashboard" className="text-ink-soft transition hover:text-primary">Guide vendeur</Link></li>
+              <li><Link to="/contact" className="text-ink-soft transition hover:text-primary">Centre d'aide</Link></li>
             </ul>
           </div>
 
           <div>
             <h4 className="mb-4 text-xs font-bold uppercase tracking-widest text-ink">Congo Soldes</h4>
             <ul className="space-y-2.5 text-sm">
-              <li><Link to="/" className="text-ink-soft transition hover:text-primary">À propos</Link></li>
-              <li><Link to="/" className="text-ink-soft transition hover:text-primary">Blog</Link></li>
-              <li><Link to="/" className="text-ink-soft transition hover:text-primary">Presse</Link></li>
-              <li><Link to="/" className="text-ink-soft transition hover:text-primary">Contact</Link></li>
-              <li><Link to="/" className="text-ink-soft transition hover:text-primary">Recrutement</Link></li>
+              <li><Link to="/a-propos" className="text-ink-soft transition hover:text-primary">À propos</Link></li>
+              <li><Link to="/blog" className="text-ink-soft transition hover:text-primary">Blog</Link></li>
+              <li><Link to="/blog" className="text-ink-soft transition hover:text-primary">Presse</Link></li>
+              <li><Link to="/contact" className="text-ink-soft transition hover:text-primary">Contact</Link></li>
+              <li><Link to="/contact" className="text-ink-soft transition hover:text-primary">Recrutement</Link></li>
             </ul>
           </div>
         </div>
@@ -54,9 +54,9 @@ export function Footer() {
         <div className="mt-14 flex flex-col items-start justify-between gap-4 border-t border-border/60 pt-6 text-xs text-muted-foreground sm:flex-row sm:items-center">
           <p>© 2026 Congo Soldes - Brazzaville, République du Congo</p>
           <div className="flex gap-4">
-            <Link to="/" className="hover:text-primary">Confidentialité</Link>
-            <Link to="/" className="hover:text-primary">CGU</Link>
-            <Link to="/" className="hover:text-primary">Mentions légales</Link>
+            <Link to="/confidentialite" className="hover:text-primary">Confidentialité</Link>
+            <Link to="/cgu" className="hover:text-primary">CGU</Link>
+            <Link to="/mentions-legales" className="hover:text-primary">Mentions légales</Link>
           </div>
         </div>
       </div>

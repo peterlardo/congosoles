@@ -26,7 +26,7 @@ export function StoresSection() {
                 </div>
                 <div className="text-xs text-muted-foreground">{store.location} · {store.activePromos} promos actives</div>
               </div>
-              <Link to="/" className="rounded-full border border-border px-3 py-1.5 text-xs font-semibold text-ink transition hover:border-primary hover:text-primary">Visiter</Link>
+              <Link to={`/boutique/${encodeURIComponent(store.name)}`} className="rounded-full border border-border px-3 py-1.5 text-xs font-semibold text-ink transition hover:border-primary hover:text-primary">Visiter</Link>
             </div>
           ))}
         </div>

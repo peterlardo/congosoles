@@ -1,11 +1,13 @@
 import { Heart, MapPin, Store, Zap } from "lucide-react"
+import { Link } from "react-router-dom"
 import type { Product } from "@/lib/data"
 
 const formatPrice = (price: number) => new Intl.NumberFormat("fr-FR").format(price)
 
 export function ProductCard({ product }: { product: Product }) {
   return (
-    <article className="group relative flex flex-col overflow-hidden rounded-2xl bg-card shadow-card ring-1 ring-border/60 transition-all hover:-translate-y-0.5 hover:shadow-lift">
+    <Link to={`/promo/${product.id}`}>
+      <article className="group relative flex flex-col overflow-hidden rounded-2xl bg-card shadow-card ring-1 ring-border/60 transition-all hover:-translate-y-0.5 hover:shadow-lift">
       <div className="relative aspect-[4/3] overflow-hidden bg-muted">
         <img
           src={product.image}
@@ -53,6 +55,7 @@ export function ProductCard({ product }: { product: Product }) {
           </div>
         )}
       </div>
-    </article>
+      </article>
+    </Link>
   )
 }

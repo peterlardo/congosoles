@@ -223,6 +223,8 @@ export const todayProducts: Product[] = [
   },
 ]
 
+export const allProducts: Product[] = [...flashProducts, ...todayProducts]
+
 export const stores: Store[] = [
   { id: 1, name: "Casino Brazza", category: "🏬", location: "Brazzaville", activePromos: 42, image: "https://images.unsplash.com/photo-1586201375761-83865001e31c?w=600&q=70&auto=format" },
   { id: 2, name: "SportZone", category: "⚽", location: "Pointe-Noire", activePromos: 18, image: "https://images.unsplash.com/photo-1542291026-7eec264c27ff?w=600&q=70&auto=format" },

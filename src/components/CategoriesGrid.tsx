@@ -15,7 +15,7 @@ export function CategoriesGrid() {
           {categories.map((cat) => (
             <Link
               key={cat.id}
-              to="/"
+              to={`/categorie/${cat.name.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "").replace(/ /g, "-")}`}
               className="group rounded-2xl border border-border/60 bg-card p-4 shadow-card transition hover:-translate-y-0.5 hover:shadow-lift"
             >
               <span className="block text-3xl transition-transform group-hover:scale-110">{cat.icon}</span>
