@@ -14,6 +14,11 @@ import Contact from "@/pages/Contact"
 import Privacy from "@/pages/Privacy"
 import CGU from "@/pages/CGU"
 import Legal from "@/pages/Legal"
+import Presse from "@/pages/Presse"
+import Recrutement from "@/pages/Recrutement"
+import Tarifs from "@/pages/Tarifs"
+import GuideVendeur from "@/pages/GuideVendeur"
+import Publicite from "@/pages/Publicite"
 
 function App() {
   return (
@@ -34,6 +39,11 @@ function App() {
           <Route path="/confidentialite" element={<Privacy />} />
           <Route path="/cgu" element={<CGU />} />
           <Route path="/mentions-legales" element={<Legal />} />
+          <Route path="/presse" element={<Presse />} />
+          <Route path="/recrutement" element={<Recrutement />} />
+          <Route path="/tarifs" element={<Tarifs />} />
+          <Route path="/guide-vendeur" element={<GuideVendeur />} />
+          <Route path="/publicite" element={<Publicite />} />
         </Routes>
         <Footer />
       </div>

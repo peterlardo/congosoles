@@ -31,10 +31,9 @@ export function Footer() {
           <div>
             <h4 className="mb-4 text-xs font-bold uppercase tracking-widest text-ink">Commerçants</h4>
             <ul className="space-y-2.5 text-sm">
-              <li><Link to="/dashboard" className="text-ink-soft transition hover:text-primary">Ouvrir une boutique</Link></li>
-              <li><Link to="/dashboard" className="text-ink-soft transition hover:text-primary">Tarifs & abonnements</Link></li>
-              <li><Link to="/dashboard" className="text-ink-soft transition hover:text-primary">Publicité sponsorisée</Link></li>
-              <li><Link to="/dashboard" className="text-ink-soft transition hover:text-primary">Guide vendeur</Link></li>
+              <li><Link to="/tarifs" className="text-ink-soft transition hover:text-primary">Tarifs & abonnements</Link></li>
+              <li><Link to="/publicite" className="text-ink-soft transition hover:text-primary">Publicité sponsorisée</Link></li>
+              <li><Link to="/guide-vendeur" className="text-ink-soft transition hover:text-primary">Guide vendeur</Link></li>
               <li><Link to="/contact" className="text-ink-soft transition hover:text-primary">Centre d'aide</Link></li>
             </ul>
           </div>
@@ -44,9 +43,9 @@ export function Footer() {
             <ul className="space-y-2.5 text-sm">
               <li><Link to="/a-propos" className="text-ink-soft transition hover:text-primary">À propos</Link></li>
               <li><Link to="/blog" className="text-ink-soft transition hover:text-primary">Blog</Link></li>
-              <li><Link to="/blog" className="text-ink-soft transition hover:text-primary">Presse</Link></li>
+              <li><Link to="/presse" className="text-ink-soft transition hover:text-primary">Presse</Link></li>
               <li><Link to="/contact" className="text-ink-soft transition hover:text-primary">Contact</Link></li>
-              <li><Link to="/contact" className="text-ink-soft transition hover:text-primary">Recrutement</Link></li>
+              <li><Link to="/recrutement" className="text-ink-soft transition hover:text-primary">Recrutement</Link></li>
             </ul>
           </div>
         </div>
