@@ -59,7 +59,7 @@ export default function DashboardLayout() {
   const Sidebar = ({ className = "" }: { className?: string }) => (
     <aside className={`flex flex-col bg-primary text-primary-foreground border-r border-white/10 ${className}`}>
       <div className="flex items-center gap-3 px-6 py-5 border-b border-white/10">
-        <img src="/assets/logo.png" alt="Congo Soldes" className="h-10 w-10 object-contain brightness-0 invert" />
+        <img src="/assets/logo.png" alt="Congo Soldes" className="h-14 w-14 object-contain brightness-0 invert" />
         <div>
           <div className="font-display text-sm font-bold text-white">Congo Soldes</div>
           <div className="text-xs text-white">{isAdmin ? "Administration" : "Espace commerçant"}</div>
@@ -81,13 +81,13 @@ export default function DashboardLayout() {
             onClick={() => setMobileOpen(false)}
             className={`flex items-center gap-3 rounded-xl px-3 py-2.5 text-sm font-medium transition ${
               isActive(link.to)
-                ? "bg-white/20 text-white font-bold"
+                ? "bg-white text-primary font-bold"
                 : "text-white hover:bg-white/10"
             }`}
           >
             <link.icon className="h-4 w-4" />
             {link.label}
-            {isActive(link.to) && <ChevronRight className="ml-auto h-4 w-4 text-white/70" />}
+            {isActive(link.to) && <ChevronRight className="ml-auto h-4 w-4 text-primary" />}
           </Link>
         ))}
       </nav>
