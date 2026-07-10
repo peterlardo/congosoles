@@ -57,19 +57,19 @@ export default function DashboardLayout() {
   }
 
   const Sidebar = ({ className = "" }: { className?: string }) => (
-    <aside className={`flex flex-col bg-gradient-to-b from-orange-50 to-orange-100 dark:from-orange-950 dark:to-orange-900 border-r border-orange-200/60 dark:border-orange-800/60 ${className}`}>
-      <div className="flex items-center gap-3 px-6 py-5 border-b border-orange-200/60 dark:border-orange-800/60">
-        <img src="/assets/logo.png" alt="Congo Soldes" className="h-10 w-10 object-contain" />
+    <aside className={`flex flex-col bg-primary text-primary-foreground border-r border-white/10 ${className}`}>
+      <div className="flex items-center gap-3 px-6 py-5 border-b border-white/10">
+        <img src="/assets/logo.png" alt="Congo Soldes" className="h-10 w-10 object-contain brightness-0 invert" />
         <div>
-          <div className="font-display text-sm font-bold text-orange-900 dark:text-orange-100">Congo Soldes</div>
-          <div className="text-xs text-orange-700/70 dark:text-orange-300/70">{isAdmin ? "Administration" : "Espace commerçant"}</div>
+          <div className="font-display text-sm font-bold text-white">Congo Soldes</div>
+          <div className="text-xs text-white">{isAdmin ? "Administration" : "Espace commerçant"}</div>
         </div>
       </div>
 
       {isAdmin && (
-        <div className="mx-3 mt-3 flex items-center gap-2 rounded-xl bg-orange-500/20 px-3 py-2">
-          <Shield className="h-4 w-4 text-orange-600 dark:text-orange-400" />
-          <span className="text-xs font-bold text-orange-600 dark:text-orange-400">{profile?.role === "super_admin" ? "Super Admin" : "Administrateur"}</span>
+        <div className="mx-3 mt-3 flex items-center gap-2 rounded-xl bg-white/10 px-3 py-2">
+          <Shield className="h-4 w-4 text-white" />
+          <span className="text-xs font-bold text-white">{profile?.role === "super_admin" ? "Super Admin" : "Administrateur"}</span>
         </div>
       )}
 
@@ -81,29 +81,29 @@ export default function DashboardLayout() {
             onClick={() => setMobileOpen(false)}
             className={`flex items-center gap-3 rounded-xl px-3 py-2.5 text-sm font-medium transition ${
               isActive(link.to)
-                ? "bg-orange-500/15 text-orange-700 dark:text-orange-300 font-bold"
-                : "text-orange-800/70 dark:text-orange-200/70 hover:bg-orange-500/10 hover:text-orange-800 dark:hover:text-orange-200"
+                ? "bg-white/20 text-white font-bold"
+                : "text-white hover:bg-white/10"
             }`}
           >
             <link.icon className="h-4 w-4" />
             {link.label}
-            {isActive(link.to) && <ChevronRight className="ml-auto h-4 w-4 text-orange-500" />}
+            {isActive(link.to) && <ChevronRight className="ml-auto h-4 w-4 text-white/70" />}
           </Link>
         ))}
       </nav>
 
-      <div className="border-t border-orange-200/60 dark:border-orange-800/60 p-3">
+      <div className="border-t border-white/10 p-3">
         <div className="flex items-center gap-3 rounded-xl px-3 py-2">
-          <div className="grid h-8 w-8 place-items-center rounded-full bg-orange-500/15 text-orange-600 dark:text-orange-400 text-xs font-bold">
+          <div className="grid h-8 w-8 place-items-center rounded-full bg-white/20 text-white text-xs font-bold">
             <User className="h-4 w-4" />
           </div>
           <div className="min-w-0 flex-1">
-            <div className="truncate text-sm font-semibold text-orange-900 dark:text-orange-100">
+            <div className="truncate text-sm font-semibold text-white">
               {profile?.name || user?.email?.split("@")[0] || "Utilisateur"}
             </div>
-            <div className="truncate text-xs text-orange-700/70 dark:text-orange-300/70">{user?.email}</div>
+            <div className="truncate text-xs text-white">{user?.email}</div>
           </div>
-          <button onClick={handleLogout} className="text-orange-700/70 dark:text-orange-300/70 transition hover:text-red-500" title="Déconnexion">
+          <button onClick={handleLogout} className="text-white transition hover:text-red-300" title="Déconnexion">
             <LogOut className="h-4 w-4" />
           </button>
         </div>
