@@ -58,9 +58,9 @@ export default function DashboardLayout() {
 
   const Sidebar = ({ className = "" }: { className?: string }) => (
     <aside className={`flex flex-col bg-primary text-primary-foreground border-r border-white/10 ${className}`}>
-      <div className="flex items-center gap-3 px-6 py-5 border-b border-white/10">
-        <img src="/assets/logo.png" alt="Congo Soldes" className="h-14 w-14 object-contain" style={{ filter: "brightness(0) invert(1)" }} />
-        <div>
+      <div className="flex flex-col items-center gap-1 px-6 py-6 border-b border-white/10">
+        <img src="/assets/logo.png" alt="Congo Soldes" className="h-20 w-20 object-contain" style={{ filter: "brightness(0) invert(1)" }} />
+        <div className="text-center">
           <div className="font-display text-sm font-bold text-white">Congo Soldes</div>
           <div className="text-xs text-white">{isAdmin ? "Administration" : "Espace commerçant"}</div>
         </div>
