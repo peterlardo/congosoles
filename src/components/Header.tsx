@@ -11,7 +11,7 @@ export function Header() {
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex h-20 items-center justify-between">
           <Link to="/" className="flex items-center gap-2">
-            <div className="h-40 w-40 overflow-hidden rounded-full" style={{ mixBlendMode: 'multiply' }}>
+            <div className="h-56 w-56 overflow-hidden rounded-full" style={{ mixBlendMode: 'multiply' }}>
               <img src="/assets/logo.png" alt="Congo Soldes" className="h-full w-full object-contain" />
             </div>
             <div>

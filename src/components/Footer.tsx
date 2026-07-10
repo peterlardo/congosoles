@@ -6,7 +6,7 @@ export function Footer() {
         <div className="grid gap-12 lg:grid-cols-[1.4fr_repeat(3,1fr)]">
           <div>
             <div className="flex items-center gap-2">
-              <div className="h-40 w-40 overflow-hidden rounded-full" style={{ mixBlendMode: 'multiply' }}>
+              <div className="h-56 w-56 overflow-hidden rounded-full" style={{ mixBlendMode: 'multiply' }}>
                 <img src="/assets/logo.png" alt="Congo Soldes" className="h-full w-full object-contain" />
               </div>
               <div>
