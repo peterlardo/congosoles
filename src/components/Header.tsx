@@ -49,20 +49,18 @@ export function Header() {
                 <ChevronDown className="h-3.5 w-3.5" />
               </button>
               {catOpen && (
-                <div className="absolute right-0 top-full mt-2 w-64 rounded-2xl border border-border bg-card p-3 shadow-lift">
-                  <div className="grid grid-cols-2 gap-1">
-                    {categories.map((cat) => (
-                      <Link
-                        key={cat.id}
-                        to={`/categorie/${cat.name.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "").replace(/ /g, "-")}`}
-                        className="flex items-center gap-2 rounded-xl px-3 py-2 text-sm text-ink transition hover:bg-secondary"
-                        onClick={() => setCatOpen(false)}
-                      >
-                        <span>{cat.icon}</span>
-                        <span>{cat.name}</span>
-                      </Link>
-                    ))}
-                  </div>
+                <div className="absolute right-0 top-full mt-2 w-52 rounded-2xl border border-border bg-card p-2 shadow-lift">
+                  {categories.map((cat) => (
+                    <Link
+                      key={cat.id}
+                      to={`/categorie/${cat.name.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "").replace(/ /g, "-")}`}
+                      className="flex items-center gap-2 rounded-xl px-3 py-2 text-sm text-ink transition hover:bg-secondary"
+                      onClick={() => setCatOpen(false)}
+                    >
+                      <span>{cat.icon}</span>
+                      <span>{cat.name}</span>
+                    </Link>
+                  ))}
                   <Link
                     to="/promos"
                     className="mt-2 block rounded-xl bg-accent px-3 py-2 text-center text-xs font-bold text-accent-foreground transition hover:opacity-90"
