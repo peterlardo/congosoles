@@ -12,11 +12,18 @@ interface Boutique {
   website: string
   image: string
   category: string
+  slug?: string
+}
+
+const EMPTY_BOUTIQUE: Boutique = { id: "", name: "", description: "", address: "", phone: "", website: "", image: "", category: "" }
+
+function slugify(text: string) {
+  return text.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "").replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "")
 }
 
 export default function DashboardBoutique() {
   const { user } = useAuth()
-  const [boutique, setBoutique] = useState<Boutique | null>(null)
+  const [boutique, setBoutique] = useState<Boutique>(EMPTY_BOUTIQUE)
   const [loading, setLoading] = useState(true)
   const [saving, setSaving] = useState(false)
   const [saved, setSaved] = useState(false)
@@ -28,20 +35,31 @@ export default function DashboardBoutique() {
         .from("stores")
         .select("*")
         .eq("user_id", user.id)
-        .single()
-      setBoutique(data)
+        .maybeSingle()
+      if (data) setBoutique(data)
       setLoading(false)
     }
     fetchBoutique()
   }, [user])
 
   const handleSave = async () => {
-    if (!boutique || !user) return
+    if (!user || !boutique.name) return
     setSaving(true)
-    await supabase
-      .from("stores")
-      .upsert({ ...boutique, user_id: user.id })
-      .eq("user_id", user.id)
+    if (!boutique.id) {
+      await supabase.from("stores").insert({
+        user_id: user.id, name: boutique.name, description: boutique.description,
+        address: boutique.address, phone: boutique.phone, website: boutique.website,
+        image: boutique.image, category: boutique.category,
+        slug: slugify(boutique.name) + "-" + Date.now().toString(36),
+        status: "active", verified: false,
+      })
+    } else {
+      await supabase.from("stores").update({
+        name: boutique.name, description: boutique.description,
+        address: boutique.address, phone: boutique.phone, website: boutique.website,
+        image: boutique.image, category: boutique.category,
+      }).eq("id", boutique.id)
+    }
     setSaving(false)
     setSaved(true)
     setTimeout(() => setSaved(false), 2000)
@@ -75,7 +93,7 @@ export default function DashboardBoutique() {
                 <input
                   type="text"
                   value={boutique?.name || ""}
-                  onChange={(e) => setBoutique((b) => b ? { ...b, name: e.target.value } : null)}
+                  onChange={(e) => setBoutique((b) => ({ ...b, name: e.target.value }))}
                   className="h-11 w-full rounded-xl border border-border bg-background pl-10 pr-4 text-sm text-ink outline-none transition focus:border-primary"
                 />
               </div>
@@ -85,7 +103,7 @@ export default function DashboardBoutique() {
               <label className="text-xs font-bold uppercase tracking-widest text-muted-foreground">Description</label>
               <textarea
                 value={boutique?.description || ""}
-                onChange={(e) => setBoutique((b) => b ? { ...b, description: e.target.value } : null)}
+                  onChange={(e) => setBoutique((b) => ({ ...b, description: e.target.value }))}
                 rows={3}
                 className="mt-1.5 w-full rounded-xl border border-border bg-background px-4 py-3 text-sm text-ink outline-none transition focus:border-primary resize-none"
               />
@@ -99,7 +117,7 @@ export default function DashboardBoutique() {
                   <input
                     type="text"
                     value={boutique?.address || ""}
-                    onChange={(e) => setBoutique((b) => b ? { ...b, address: e.target.value } : null)}
+                    onChange={(e) => setBoutique((b) => ({ ...b, address: e.target.value }))}
                     className="h-11 w-full rounded-xl border border-border bg-background pl-10 pr-4 text-sm text-ink outline-none transition focus:border-primary"
                   />
                 </div>
@@ -111,7 +129,7 @@ export default function DashboardBoutique() {
                   <input
                     type="tel"
                     value={boutique?.phone || ""}
-                    onChange={(e) => setBoutique((b) => b ? { ...b, phone: e.target.value } : null)}
+                    onChange={(e) => setBoutique((b) => ({ ...b, phone: e.target.value }))}
                     className="h-11 w-full rounded-xl border border-border bg-background pl-10 pr-4 text-sm text-ink outline-none transition focus:border-primary"
                   />
                 </div>
@@ -125,7 +143,7 @@ export default function DashboardBoutique() {
                 <input
                   type="url"
                   value={boutique?.website || ""}
-                  onChange={(e) => setBoutique((b) => b ? { ...b, website: e.target.value } : null)}
+                    onChange={(e) => setBoutique((b) => ({ ...b, website: e.target.value }))}
                   placeholder="https://"
                   className="h-11 w-full rounded-xl border border-border bg-background pl-10 pr-4 text-sm text-ink outline-none transition focus:border-primary"
                 />
@@ -159,7 +177,7 @@ export default function DashboardBoutique() {
             <h2 className="font-semibold text-ink">Catégorie</h2>
             <select
               value={boutique?.category || ""}
-              onChange={(e) => setBoutique((b) => b ? { ...b, category: e.target.value } : null)}
+              onChange={(e) => setBoutique((b) => ({ ...b, category: e.target.value }))}
               className="mt-3 h-11 w-full rounded-xl border border-border bg-background px-4 text-sm text-ink outline-none transition focus:border-primary"
             >
               <option value="">Choisir une catégorie</option>

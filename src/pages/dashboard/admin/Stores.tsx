@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react"
 import { supabase } from "@/lib/supabase"
 import { fetchAdminStores, updateStoreStatus, toggleStoreBadge, deleteStore } from "@/lib/admin"
-import { Store, Search, MapPin, Check, X, Ban, ShieldCheck, Crown, Trash2, Edit3, Save } from "lucide-react"
+import { Store, Search, MapPin, Check, X, Ban, ShieldCheck, Crown, Trash2, Edit3, Save, Plus } from "lucide-react"
 import { Link } from "react-router-dom"
 import type { AdminStore } from "@/types/admin"
 import Pagination from "@/components/Pagination"
@@ -17,6 +17,8 @@ export default function AdminStores() {
   const [deleteModal, setDeleteModal] = useState<AdminStore | null>(null)
   const [rejectReason, setRejectReason] = useState("")
   const [page, setPage] = useState(1)
+  const [showCreate, setShowCreate] = useState(false)
+  const [newStore, setNewStore] = useState({ name: "", address: "", phone: "", category: "", description: "", district: "", neighborhood: "" })
 
   useEffect(() => {
     fetchAdminStores(statusFilter, search).then(data => { setStores(data); setLoading(false) })
@@ -77,6 +79,10 @@ export default function AdminStores() {
           <h1 className="font-display text-2xl font-bold text-ink">Boutiques</h1>
           <p className="mt-1 text-sm text-ink-soft">{stores.length} boutique{stores.length > 1 ? "s" : ""} · {stores.filter(s => s.status === "pending").length} en attente</p>
         </div>
+        <button onClick={() => setShowCreate(true)}
+          className="inline-flex items-center gap-2 rounded-full gradient-primary px-5 py-2.5 text-sm font-bold text-primary-foreground shadow-glow transition hover:opacity-95">
+          <Plus className="h-4 w-4" /> Nouvelle boutique
+        </button>
       </div>
 
       <div className="flex flex-col gap-3 sm:flex-row sm:items-center">
@@ -256,6 +262,57 @@ export default function AdminStores() {
             <div className="mt-4 flex gap-2">
               <button onClick={() => handleDelete(deleteModal.id)} className="flex-1 rounded-full bg-red-500 py-2.5 text-sm font-bold text-white">Supprimer</button>
               <button onClick={() => setDeleteModal(null)} className="flex-1 rounded-full border border-border py-2.5 text-sm font-semibold text-ink">Annuler</button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {showCreate && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40" onClick={() => setShowCreate(false)}>
+          <div className="w-full max-w-lg rounded-3xl bg-card p-6 shadow-xl" onClick={e => e.stopPropagation()}>
+            <h3 className="font-display text-lg font-bold text-ink">Nouvelle boutique</h3>
+            <div className="mt-4 space-y-3">
+              <input value={newStore.name} onChange={e => setNewStore({ ...newStore, name: e.target.value })}
+                placeholder="Nom *" className="h-10 w-full rounded-full border border-border bg-background px-4 text-sm outline-none focus:border-primary" />
+              <input value={newStore.category} onChange={e => setNewStore({ ...newStore, category: e.target.value })}
+                placeholder="Catégorie *" className="h-10 w-full rounded-full border border-border bg-background px-4 text-sm outline-none focus:border-primary" />
+              <input value={newStore.address} onChange={e => setNewStore({ ...newStore, address: e.target.value })}
+                placeholder="Adresse" className="h-10 w-full rounded-full border border-border bg-background px-4 text-sm outline-none focus:border-primary" />
+              <input value={newStore.phone} onChange={e => setNewStore({ ...newStore, phone: e.target.value })}
+                placeholder="Téléphone" className="h-10 w-full rounded-full border border-border bg-background px-4 text-sm outline-none focus:border-primary" />
+              <textarea value={newStore.description} onChange={e => setNewStore({ ...newStore, description: e.target.value })}
+                placeholder="Description" className="h-24 w-full rounded-2xl border border-border bg-background p-4 text-sm outline-none focus:border-primary" />
+              <div className="grid grid-cols-2 gap-3">
+                <input value={newStore.district} onChange={e => setNewStore({ ...newStore, district: e.target.value })}
+                  placeholder="District" className="h-10 w-full rounded-full border border-border bg-background px-4 text-sm outline-none focus:border-primary" />
+                <input value={newStore.neighborhood} onChange={e => setNewStore({ ...newStore, neighborhood: e.target.value })}
+                  placeholder="Quartier" className="h-10 w-full rounded-full border border-border bg-background px-4 text-sm outline-none focus:border-primary" />
+              </div>
+              <div className="flex gap-2 pt-2">
+                <button onClick={async () => {
+                  if (!newStore.name || !newStore.category) return
+                  const { data: userData } = await supabase.auth.getUser()
+                  await supabase.from("stores").insert({
+                    user_id: userData.user?.id,
+                    name: newStore.name,
+                    category: newStore.category,
+                    address: newStore.address || null,
+                    phone: newStore.phone || null,
+                    description: newStore.description || null,
+                    district: newStore.district || null,
+                    neighborhood: newStore.neighborhood || null,
+                    status: "active",
+                    verified: true,
+                  })
+                  setShowCreate(false)
+                  setNewStore({ name: "", address: "", phone: "", category: "", description: "", district: "", neighborhood: "" })
+                  const data = await fetchAdminStores(statusFilter, search)
+                  setStores(data)
+                }} className="flex items-center gap-2 rounded-full gradient-primary px-6 py-2.5 text-sm font-bold text-primary-foreground">
+                  <Plus className="h-4 w-4" /> Créer
+                </button>
+                <button onClick={() => setShowCreate(false)} className="rounded-full border border-border px-6 py-2.5 text-sm font-semibold text-ink">Annuler</button>
+              </div>
             </div>
           </div>
         </div>
