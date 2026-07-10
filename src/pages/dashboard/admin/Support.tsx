@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react"
 import { supabase } from "@/lib/supabase"
-import { fetchTickets } from "@/lib/admin"
-import { MessageSquare, Search, ChevronDown, Send, User } from "lucide-react"
+import { fetchTickets, updateTicketStatus, assignTicket } from "@/lib/admin"
+import { MessageSquare, Search, ChevronDown, Send, User, Check, X, RotateCcw } from "lucide-react"
 import type { SupportTicket, TicketMessage } from "@/types/admin"
 
 export default function AdminSupport() {
@@ -26,6 +26,12 @@ export default function AdminSupport() {
     setSelected({ ...ticket, messages })
   }
 
+  const handleStatus = async (ticketId: string, status: string) => {
+    await updateTicketStatus(ticketId, status)
+    setTickets(prev => prev.map(t => t.id === ticketId ? { ...t, status: status as any } : t))
+    setSelected(prev => prev?.id === ticketId ? { ...prev, status: status as any } : prev)
+  }
+
   const sendReply = async () => {
     if (!reply.trim() || !selected) return
     const { data } = await supabase.from("ticket_messages").insert({
@@ -37,6 +43,7 @@ export default function AdminSupport() {
     if (selected.status === "open") {
       await supabase.from("support_tickets").update({ status: "in_progress" }).eq("id", selected.id)
       setTickets(prev => prev.map(t => t.id === selected.id ? { ...t, status: "in_progress" as any } : t))
+      setSelected(prev => prev?.id === selected.id ? { ...prev, status: "in_progress" as any } : prev)
     }
   }
 
@@ -99,8 +106,32 @@ export default function AdminSupport() {
         ) : (
           <>
             <div className="border-b border-border/60 p-4">
-              <h3 className="font-semibold text-ink">{selected.subject}</h3>
-              <p className="text-xs text-muted-foreground">{selected.user_name || selected.user_email} · {selected.category}</p>
+              <div className="flex items-center justify-between">
+                <div>
+                  <h3 className="font-semibold text-ink">{selected.subject}</h3>
+                  <p className="text-xs text-muted-foreground">{selected.user_name || selected.user_email} · {selected.category}</p>
+                </div>
+                <div className="flex gap-1.5">
+                  {selected.status !== "resolved" && selected.status !== "closed" && (
+                    <>
+                      <button onClick={() => handleStatus(selected.id, "resolved")}
+                        className="flex items-center gap-1 rounded-full bg-success/10 px-3 py-1.5 text-xs font-bold text-success transition hover:bg-success/20">
+                        <Check className="h-3.5 w-3.5" /> Résoudre
+                      </button>
+                      <button onClick={() => handleStatus(selected.id, "closed")}
+                        className="flex items-center gap-1 rounded-full bg-muted px-3 py-1.5 text-xs font-bold text-muted-foreground transition hover:bg-red-500/10 hover:text-red-500">
+                        <X className="h-3.5 w-3.5" /> Fermer
+                      </button>
+                    </>
+                  )}
+                  {(selected.status === "resolved" || selected.status === "closed") && (
+                    <button onClick={() => handleStatus(selected.id, "open")}
+                      className="flex items-center gap-1 rounded-full bg-blue-500/10 px-3 py-1.5 text-xs font-bold text-blue-500 transition hover:bg-blue-500/20">
+                      <RotateCcw className="h-3.5 w-3.5" /> Rouvrir
+                    </button>
+                  )}
+                </div>
+              </div>
             </div>
             <div className="flex-1 overflow-y-auto space-y-3 p-4">
               <div className="rounded-xl bg-muted p-3 text-sm">

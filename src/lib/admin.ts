@@ -3,7 +3,8 @@ import type {
   AdminStore, AdminPromotion, AdminProfile, AdminCategory, AdminSubcategory,
   District, Neighborhood, SubscriptionPlan, Subscription, Payment,
   SponsoredCampaign, Banner, Review, Report, Notification, CMSPage,
-  ActivityLog, SupportTicket, PlatformSetting, StoreDocument, AdminStats
+  ActivityLog, SupportTicket, PlatformSetting, StoreDocument, AdminStats,
+  ContractTemplate, Contract
 } from "@/types/admin"
 
 export async function logActivity(action: string, entityType: string, entityId: string, details?: any) {
@@ -119,9 +120,23 @@ export async function saveCategory(cat: Partial<AdminCategory>) {
 }
 
 export async function saveSubcategory(sub: Partial<AdminSubcategory>) {
-  return sub.id
+  const { error } = sub.id
     ? await supabase.from("subcategories").update(sub).eq("id", sub.id)
     : await supabase.from("subcategories").insert(sub)
+  if (!error) await logActivity(sub.id ? "update_subcategory" : "create_subcategory", "subcategory", sub.id || "new")
+  return { error }
+}
+
+export async function deleteCategory(id: string) {
+  const { error } = await supabase.from("categories").delete().eq("id", id)
+  if (!error) await logActivity("delete_category", "category", id)
+  return { error }
+}
+
+export async function deleteSubcategory(id: string) {
+  const { error } = await supabase.from("subcategories").delete().eq("id", id)
+  if (!error) await logActivity("delete_subcategory", "subcategory", id)
+  return { error }
 }
 
 // Locations
@@ -132,6 +147,34 @@ export async function fetchDistricts(): Promise<District[]> {
     ...d,
     neighborhoods: (neighs as Neighborhood[])?.filter(n => n.district_id === d.id) || []
   })) || []
+}
+
+export async function saveDistrict(dist: Partial<District>) {
+  const { error } = dist.id
+    ? await supabase.from("districts").update(dist).eq("id", dist.id)
+    : await supabase.from("districts").insert(dist)
+  if (!error) await logActivity(dist.id ? "update_district" : "create_district", "district", dist.id || "new")
+  return { error }
+}
+
+export async function deleteDistrict(id: string) {
+  const { error } = await supabase.from("districts").delete().eq("id", id)
+  if (!error) await logActivity("delete_district", "district", id)
+  return { error }
+}
+
+export async function saveNeighborhood(neigh: Partial<Neighborhood>) {
+  const { error } = neigh.id
+    ? await supabase.from("neighborhoods").update(neigh).eq("id", neigh.id)
+    : await supabase.from("neighborhoods").insert(neigh)
+  if (!error) await logActivity(neigh.id ? "update_neighborhood" : "create_neighborhood", "neighborhood", neigh.id || "new")
+  return { error }
+}
+
+export async function deleteNeighborhood(id: string) {
+  const { error } = await supabase.from("neighborhoods").delete().eq("id", id)
+  if (!error) await logActivity("delete_neighborhood", "neighborhood", id)
+  return { error }
 }
 
 // Subscriptions
@@ -145,6 +188,39 @@ export async function fetchSubscriptions(): Promise<Subscription[]> {
     plan_name: s.subscription_plans?.name || "",
     user_email: s.profiles?.email || ""
   })) || []
+}
+
+export async function cancelSubscription(subId: string) {
+  const { error } = await supabase.from("subscriptions").update({
+    status: "cancelled", auto_renew: false
+  }).eq("id", subId)
+  if (!error) await logActivity("cancel_subscription", "subscription", subId)
+  return { error }
+}
+
+export async function updateSubscription(subId: string, updates: Partial<Subscription>) {
+  const { error } = await supabase.from("subscriptions").update(updates).eq("id", subId)
+  if (!error) await logActivity("update_subscription", "subscription", subId)
+  return { error }
+}
+
+export async function fetchSubscriptionPlans(): Promise<SubscriptionPlan[]> {
+  const { data } = await supabase.from("subscription_plans").select("*").order("price")
+  return (data as SubscriptionPlan[]) || []
+}
+
+export async function saveSubscriptionPlan(plan: Partial<SubscriptionPlan>) {
+  const { error } = plan.id
+    ? await supabase.from("subscription_plans").update(plan).eq("id", plan.id)
+    : await supabase.from("subscription_plans").insert(plan)
+  if (!error) await logActivity(plan.id ? "update_plan" : "create_plan", "subscription_plan", plan.id || "new")
+  return { error }
+}
+
+export async function deleteSubscriptionPlan(id: string) {
+  const { error } = await supabase.from("subscription_plans").delete().eq("id", id)
+  if (!error) await logActivity("delete_plan", "subscription_plan", id)
+  return { error }
 }
 
 // Payments
@@ -203,9 +279,27 @@ export async function updateReportStatus(reportId: string, status: string, notes
   return { error }
 }
 
+export async function updatePaymentStatus(paymentId: string, status: string) {
+  const { error } = await supabase.from("payments").update({ status }).eq("id", paymentId)
+  if (!error) await logActivity("update_payment_status", "payment", paymentId, { status })
+  return { error }
+}
+
+export async function deletePayment(paymentId: string) {
+  const { error } = await supabase.from("payments").delete().eq("id", paymentId)
+  if (!error) await logActivity("delete_payment", "payment", paymentId)
+  return { error }
+}
+
 // Notifications
 export async function sendNotification(notification: Partial<Notification>) {
   const { error } = await supabase.from("notifications").insert(notification)
+  return { error }
+}
+
+export async function deleteNotification(id: string) {
+  const { error } = await supabase.from("notifications").delete().eq("id", id)
+  if (!error) await logActivity("delete_notification", "notification", id)
   return { error }
 }
 
@@ -213,6 +307,44 @@ export async function sendNotification(notification: Partial<Notification>) {
 export async function fetchCMSPages(): Promise<CMSPage[]> {
   const { data } = await supabase.from("cms_pages").select("*").order("created_at", { ascending: false })
   return (data as CMSPage[]) || []
+}
+
+export async function saveCMSPage(page: Partial<CMSPage>) {
+  const { error } = page.id
+    ? await supabase.from("cms_pages").update(page).eq("id", page.id)
+    : await supabase.from("cms_pages").insert(page)
+  if (!error) await logActivity(page.id ? "update_cms_page" : "create_cms_page", "cms_page", page.id || "new")
+  return { error }
+}
+
+export async function deleteCMSPage(id: string) {
+  const { error } = await supabase.from("cms_pages").delete().eq("id", id)
+  if (!error) await logActivity("delete_cms_page", "cms_page", id)
+  return { error }
+}
+
+export async function deleteReport(id: string) {
+  const { error } = await supabase.from("reports").delete().eq("id", id)
+  if (!error) await logActivity("delete_report", "report", id)
+  return { error }
+}
+
+export async function deleteStore(storeId: string) {
+  const { error } = await supabase.from("stores").delete().eq("id", storeId)
+  if (!error) await logActivity("delete_store", "store", storeId)
+  return { error }
+}
+
+export async function updateTicketStatus(ticketId: string, status: string) {
+  const { error } = await supabase.from("support_tickets").update({ status }).eq("id", ticketId)
+  if (!error) await logActivity("update_ticket_status", "ticket", ticketId, { status })
+  return { error }
+}
+
+export async function assignTicket(ticketId: string, assignedTo: string) {
+  const { error } = await supabase.from("support_tickets").update({ assigned_to: assignedTo }).eq("id", ticketId)
+  if (!error) await logActivity("assign_ticket", "ticket", ticketId, { assigned_to: assignedTo })
+  return { error }
 }
 
 // Support
@@ -247,6 +379,53 @@ export async function fetchSettings(): Promise<PlatformSetting[]> {
 export async function updateSetting(key: string, value: any) {
   const { error } = await supabase.from("platform_settings").upsert({ key, value, updated_at: new Date().toISOString() })
   if (!error) await logActivity("update_setting", "setting", key, { value })
+  return { error }
+}
+
+// Contracts
+export async function fetchContractTemplates(): Promise<ContractTemplate[]> {
+  const { data } = await supabase.from("contract_templates").select("*").order("title")
+  return (data as ContractTemplate[]) || []
+}
+
+export async function saveContractTemplate(tpl: Partial<ContractTemplate>) {
+  const { error } = tpl.id
+    ? await supabase.from("contract_templates").update(tpl).eq("id", tpl.id)
+    : await supabase.from("contract_templates").insert(tpl)
+  if (!error) await logActivity(tpl.id ? "update_contract_template" : "create_contract_template", "contract_template", tpl.id || "new")
+  return { error }
+}
+
+export async function deleteContractTemplate(id: string) {
+  const { error } = await supabase.from("contract_templates").delete().eq("id", id)
+  if (!error) await logActivity("delete_contract_template", "contract_template", id)
+  return { error }
+}
+
+export async function fetchContracts(): Promise<Contract[]> {
+  const { data } = await supabase
+    .from("contracts")
+    .select("*, stores!contracts_store_id_fkey(name), profiles!contracts_user_id_fkey(email), contract_templates!contracts_template_id_fkey(title)")
+    .order("created_at", { ascending: false })
+  return (data as any[])?.map(c => ({
+    ...c,
+    store_name: c.stores?.name || "",
+    user_email: c.profiles?.email || "",
+    template_title: c.contract_templates?.title || ""
+  })) || []
+}
+
+export async function saveContract(contract: Partial<Contract>) {
+  const { error } = contract.id
+    ? await supabase.from("contracts").update(contract).eq("id", contract.id)
+    : await supabase.from("contracts").insert(contract)
+  if (!error) await logActivity(contract.id ? "update_contract" : "create_contract", "contract", contract.id || "new")
+  return { error }
+}
+
+export async function deleteContract(id: string) {
+  const { error } = await supabase.from("contracts").delete().eq("id", id)
+  if (!error) await logActivity("delete_contract", "contract", id)
   return { error }
 }
 

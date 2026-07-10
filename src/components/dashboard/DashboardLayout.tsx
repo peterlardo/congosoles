@@ -6,7 +6,7 @@ import {
   ChevronRight, Bell, User, ShoppingBag, TrendingUp, Shield,
   Users, Layers, MapPin, CreditCard, DollarSign, AlertTriangle,
   MessageSquare, FileText, History, Bell as BellIcon, Megaphone,
-  Crown, Image, Star, ShieldAlert
+  Crown, Image, Star, ShieldAlert, FileSignature
 } from "lucide-react"
 
 export default function DashboardLayout() {
@@ -36,6 +36,7 @@ export default function DashboardLayout() {
     { to: "/dashboard/admin/payments", label: "Paiements", icon: DollarSign },
     { to: "/dashboard/admin/reports", label: "Signalements", icon: AlertTriangle },
     { to: "/dashboard/admin/notifications", label: "Notifications", icon: BellIcon },
+    { to: "/dashboard/admin/contracts", label: "Contrats", icon: FileSignature },
     { to: "/dashboard/admin/cms", label: "Pages CMS", icon: FileText },
     { to: "/dashboard/admin/support", label: "Support", icon: MessageSquare },
     { to: "/dashboard/admin/activity", label: "Journal activité", icon: History },
@@ -56,19 +57,19 @@ export default function DashboardLayout() {
   }
 
   const Sidebar = ({ className = "" }: { className?: string }) => (
-    <aside className={`flex flex-col bg-card border-r border-border/60 ${className}`}>
-      <div className="flex items-center gap-3 px-6 py-5 border-b border-border/60">
+    <aside className={`flex flex-col bg-gradient-to-b from-orange-50 to-orange-100 dark:from-orange-950 dark:to-orange-900 border-r border-orange-200/60 dark:border-orange-800/60 ${className}`}>
+      <div className="flex items-center gap-3 px-6 py-5 border-b border-orange-200/60 dark:border-orange-800/60">
         <img src="/assets/logo.png" alt="Congo Soldes" className="h-10 w-10 object-contain" />
         <div>
-          <div className="font-display text-sm font-bold text-ink">Congo Soldes</div>
-          <div className="text-xs text-muted-foreground">{isAdmin ? "Administration" : "Espace commerçant"}</div>
+          <div className="font-display text-sm font-bold text-orange-900 dark:text-orange-100">Congo Soldes</div>
+          <div className="text-xs text-orange-700/70 dark:text-orange-300/70">{isAdmin ? "Administration" : "Espace commerçant"}</div>
         </div>
       </div>
 
       {isAdmin && (
-        <div className="mx-3 mt-3 flex items-center gap-2 rounded-xl bg-primary/10 px-3 py-2">
-          <Shield className="h-4 w-4 text-primary" />
-          <span className="text-xs font-bold text-primary">{profile?.role === "super_admin" ? "Super Admin" : "Administrateur"}</span>
+        <div className="mx-3 mt-3 flex items-center gap-2 rounded-xl bg-orange-500/20 px-3 py-2">
+          <Shield className="h-4 w-4 text-orange-600 dark:text-orange-400" />
+          <span className="text-xs font-bold text-orange-600 dark:text-orange-400">{profile?.role === "super_admin" ? "Super Admin" : "Administrateur"}</span>
         </div>
       )}
 
@@ -80,29 +81,29 @@ export default function DashboardLayout() {
             onClick={() => setMobileOpen(false)}
             className={`flex items-center gap-3 rounded-xl px-3 py-2.5 text-sm font-medium transition ${
               isActive(link.to)
-                ? "bg-primary/10 text-primary"
-                : "text-ink-soft hover:bg-muted hover:text-ink"
+                ? "bg-orange-500/15 text-orange-700 dark:text-orange-300 font-bold"
+                : "text-orange-800/70 dark:text-orange-200/70 hover:bg-orange-500/10 hover:text-orange-800 dark:hover:text-orange-200"
             }`}
           >
             <link.icon className="h-4 w-4" />
             {link.label}
-            {isActive(link.to) && <ChevronRight className="ml-auto h-4 w-4" />}
+            {isActive(link.to) && <ChevronRight className="ml-auto h-4 w-4 text-orange-500" />}
           </Link>
         ))}
       </nav>
 
-      <div className="border-t border-border/60 p-3">
+      <div className="border-t border-orange-200/60 dark:border-orange-800/60 p-3">
         <div className="flex items-center gap-3 rounded-xl px-3 py-2">
-          <div className="grid h-8 w-8 place-items-center rounded-full bg-primary/10 text-primary text-xs font-bold">
+          <div className="grid h-8 w-8 place-items-center rounded-full bg-orange-500/15 text-orange-600 dark:text-orange-400 text-xs font-bold">
             <User className="h-4 w-4" />
           </div>
           <div className="min-w-0 flex-1">
-            <div className="truncate text-sm font-semibold text-ink">
+            <div className="truncate text-sm font-semibold text-orange-900 dark:text-orange-100">
               {profile?.name || user?.email?.split("@")[0] || "Utilisateur"}
             </div>
-            <div className="truncate text-xs text-muted-foreground">{user?.email}</div>
+            <div className="truncate text-xs text-orange-700/70 dark:text-orange-300/70">{user?.email}</div>
           </div>
-          <button onClick={handleLogout} className="text-muted-foreground transition hover:text-red-500" title="Déconnexion">
+          <button onClick={handleLogout} className="text-orange-700/70 dark:text-orange-300/70 transition hover:text-red-500" title="Déconnexion">
             <LogOut className="h-4 w-4" />
           </button>
         </div>

@@ -308,6 +308,38 @@ export interface StoreDocument {
   store_name?: string
 }
 
+export interface ContractTemplate {
+  id: string
+  title: string
+  slug: string
+  description: string
+  category: "general" | "partnership" | "advertising" | "services" | "brand_license" | "consignment" | "terms"
+  content: string
+  is_active: boolean
+  created_at: string
+  updated_at: string
+}
+
+export interface Contract {
+  id: string
+  template_id?: string
+  store_id: string
+  user_id: string
+  title: string
+  content: string
+  variables: Record<string, string>
+  status: "draft" | "sent" | "signed" | "expired" | "cancelled"
+  signed_at?: string
+  signed_by?: string
+  expires_at?: string
+  created_by?: string
+  created_at: string
+  updated_at: string
+  store_name?: string
+  template_title?: string
+  user_email?: string
+}
+
 export interface AdminStats {
   totalUsers: number
   totalStores: number

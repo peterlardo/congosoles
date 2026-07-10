@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react"
 import { supabase } from "@/lib/supabase"
-import { sendNotification } from "@/lib/admin"
-import { Bell, Send, Users, Store, Tag } from "lucide-react"
+import { sendNotification, deleteNotification } from "@/lib/admin"
+import { Bell, Send, Trash2, Users, Store, Tag } from "lucide-react"
 import type { Notification } from "@/types/admin"
 
 export default function AdminNotifications() {
@@ -13,17 +13,25 @@ export default function AdminNotifications() {
     target_audience: "all", target_value: ""
   })
 
-  useEffect(() => {
-    supabase.from("notifications").select("*").order("created_at", { ascending: false }).limit(50)
-      .then(({ data }) => { setNotifications((data as Notification[]) || []); setLoading(false) })
-  }, [])
+  const load = async () => {
+    const { data } = await supabase.from("notifications").select("*").order("created_at", { ascending: false }).limit(50)
+    setNotifications((data as Notification[]) || [])
+    setLoading(false)
+  }
+
+  useEffect(() => { load() }, [])
 
   const handleSend = async () => {
     await sendNotification(form as Notification)
     setForm({ type: "system", title: "", body: "", channel: "internal", target_audience: "all", target_value: "" })
     setShowForm(false)
-    const { data } = await supabase.from("notifications").select("*").order("created_at", { ascending: false }).limit(50)
-    setNotifications((data as Notification[]) || [])
+    load()
+  }
+
+  const handleDelete = async (id: string) => {
+    if (!confirm("Supprimer cette notification ?")) return
+    await deleteNotification(id)
+    setNotifications(prev => prev.filter(n => n.id !== id))
   }
 
   return (
@@ -78,7 +86,7 @@ export default function AdminNotifications() {
       ) : (
         <div className="space-y-2">
           {notifications.map(n => (
-            <div key={n.id} className="flex items-center gap-4 rounded-2xl border border-border/60 bg-card p-4 shadow-card">
+            <div key={n.id} className="flex items-center gap-4 rounded-2xl border border-border/60 bg-card p-4 shadow-card group">
               <div className={`grid h-10 w-10 shrink-0 place-items-center rounded-xl ${
                 n.type === "system" ? "bg-primary/10 text-primary"
                 : n.type === "marketing" ? "bg-violet-500/10 text-violet-500"
@@ -90,6 +98,10 @@ export default function AdminNotifications() {
                 <div className="text-sm font-semibold text-ink">{n.title}</div>
                 <div className="text-xs text-muted-foreground">{n.body} · {n.channel} · {n.target_audience}</div>
               </div>
+              <button onClick={() => handleDelete(n.id)}
+                className="shrink-0 rounded-full p-2 text-muted-foreground opacity-0 transition hover:bg-red-500/10 hover:text-red-500 group-hover:opacity-100">
+                <Trash2 className="h-4 w-4" />
+              </button>
             </div>
           ))}
         </div>

@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react"
 import { supabase } from "@/lib/supabase"
-import { fetchAdminStores, updateStoreStatus, toggleStoreBadge } from "@/lib/admin"
-import { Store, Search, MapPin, Check, X, Ban, Shield, ShieldCheck, Crown } from "lucide-react"
+import { fetchAdminStores, updateStoreStatus, toggleStoreBadge, deleteStore } from "@/lib/admin"
+import { Store, Search, MapPin, Check, X, Ban, ShieldCheck, Crown, Trash2, Edit3, Save } from "lucide-react"
 import { Link } from "react-router-dom"
 import type { AdminStore } from "@/types/admin"
 
@@ -11,6 +11,9 @@ export default function AdminStores() {
   const [search, setSearch] = useState("")
   const [statusFilter, setStatusFilter] = useState("all")
   const [selected, setSelected] = useState<AdminStore | null>(null)
+  const [editing, setEditing] = useState<AdminStore | null>(null)
+  const [rejectModal, setRejectModal] = useState<AdminStore | null>(null)
+  const [deleteModal, setDeleteModal] = useState<AdminStore | null>(null)
   const [rejectReason, setRejectReason] = useState("")
 
   useEffect(() => {
@@ -20,12 +23,41 @@ export default function AdminStores() {
   const handleStatus = async (id: string, status: string, reason?: string) => {
     await updateStoreStatus(id, status, reason)
     setStores(prev => prev.map(s => s.id === id ? { ...s, status: status as any, rejected_reason: reason } : s))
-    setSelected(null)
+    if (editing?.id === id) setEditing(prev => prev ? { ...prev, status: status as any, rejected_reason: reason } : prev)
+    setRejectModal(null)
   }
 
   const handleBadge = async (id: string, badge: "verified" | "premium", value: boolean) => {
     await toggleStoreBadge(id, badge, value)
     setStores(prev => prev.map(s => s.id === id ? { ...s, [badge]: value } : s))
+    if (editing?.id === id) setEditing(prev => prev ? { ...prev, [badge]: value } : prev)
+  }
+
+  const handleDelete = async (id: string) => {
+    await deleteStore(id)
+    setStores(prev => prev.filter(s => s.id !== id))
+    setDeleteModal(null)
+    if (editing?.id === id) setEditing(null)
+    if (selected?.id === id) setSelected(null)
+  }
+
+  const handleSaveEdit = async () => {
+    if (!editing) return
+    const { error } = await supabase.from("stores").update({
+      name: editing.name,
+      address: editing.address,
+      phone: editing.phone,
+      category: editing.category,
+      description: editing.description,
+      district: editing.district,
+      neighborhood: editing.neighborhood,
+      gps_lat: editing.gps_lat,
+      gps_lng: editing.gps_lng,
+    }).eq("id", editing.id)
+    if (!error) {
+      setStores(prev => prev.map(s => s.id === editing.id ? editing : s))
+      setSelected(editing)
+    }
   }
 
   const statuses = ["all", "pending", "active", "suspended", "rejected"]
@@ -65,7 +97,8 @@ export default function AdminStores() {
       ) : (
         <div className="space-y-3">
           {stores.map(store => (
-            <div key={store.id} className="flex items-center gap-4 rounded-2xl border border-border/60 bg-card p-4 shadow-card transition hover:-translate-y-0.5 hover:shadow-lift">
+            <div key={store.id} onClick={() => setSelected(store)}
+              className="flex cursor-pointer items-center gap-4 rounded-2xl border border-border/60 bg-card p-4 shadow-card transition hover:-translate-y-0.5 hover:shadow-lift">
               <div className="grid h-14 w-14 shrink-0 place-items-center rounded-xl bg-primary/10 text-primary text-lg font-bold">
                 {store.name.charAt(0).toUpperCase()}
               </div>
@@ -88,13 +121,13 @@ export default function AdminStores() {
                   <span>{store.owner_email || ""}</span>
                 </div>
               </div>
-              <div className="flex gap-1">
+              <div className="flex gap-1" onClick={e => e.stopPropagation()}>
                 {store.status === "pending" && (
                   <>
                     <button onClick={() => handleStatus(store.id, "active")} className="grid h-8 w-8 place-items-center rounded-lg bg-success/10 text-success transition hover:bg-success/20" title="Valider">
                       <Check className="h-4 w-4" />
                     </button>
-                    <button onClick={() => { setSelected(store); setRejectReason("") }} className="grid h-8 w-8 place-items-center rounded-lg bg-red-500/10 text-red-500 transition hover:bg-red-500/20" title="Refuser">
+                    <button onClick={() => { setRejectModal(store); setRejectReason("") }} className="grid h-8 w-8 place-items-center rounded-lg bg-red-500/10 text-red-500 transition hover:bg-red-500/20" title="Refuser">
                       <X className="h-4 w-4" />
                     </button>
                   </>
@@ -117,23 +150,103 @@ export default function AdminStores() {
                   className={`grid h-8 w-8 place-items-center rounded-lg transition ${store.premium ? "bg-amber-500/10 text-amber-500" : "text-muted-foreground hover:bg-muted"}`} title="Badge premium">
                   <Crown className="h-4 w-4" />
                 </button>
+                <button onClick={() => setDeleteModal(store)} className="grid h-8 w-8 place-items-center rounded-lg text-muted-foreground transition hover:bg-red-500/10 hover:text-red-500" title="Supprimer">
+                  <Trash2 className="h-4 w-4" />
+                </button>
               </div>
             </div>
           ))}
         </div>
       )}
 
-      {selected && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40" onClick={() => setSelected(null)}>
+      {selected && !editing && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40" onClick={() => { setSelected(null); setEditing(null) }}>
+          <div className="w-full max-w-lg rounded-3xl bg-card p-6 shadow-xl" onClick={e => e.stopPropagation()}>
+            <div className="flex items-center justify-between">
+              <h3 className="font-display text-lg font-bold text-ink">{selected.name}</h3>
+              <button onClick={() => setEditing(selected)} className="rounded-lg p-2 text-muted-foreground transition hover:bg-muted hover:text-ink">
+                <Edit3 className="h-4 w-4" />
+              </button>
+            </div>
+            <div className="mt-4 space-y-2 text-sm">
+              <div className="flex justify-between"><span className="text-muted-foreground">Statut</span> <span className="font-medium text-ink">{selected.status}</span></div>
+              {selected.address && <div className="flex justify-between"><span className="text-muted-foreground">Adresse</span> <span className="font-medium text-ink text-right">{selected.address}</span></div>}
+              {selected.phone && <div className="flex justify-between"><span className="text-muted-foreground">Téléphone</span> <span className="font-medium text-ink">{selected.phone}</span></div>}
+              <div className="flex justify-between"><span className="text-muted-foreground">Catégorie</span> <span className="font-medium text-ink">{selected.category}</span></div>
+              {selected.description && <div className="flex justify-between"><span className="text-muted-foreground">Description</span> <span className="font-medium text-ink text-right max-w-xs">{selected.description}</span></div>}
+              {selected.district && <div className="flex justify-between"><span className="text-muted-foreground">District</span> <span className="font-medium text-ink">{selected.district}</span></div>}
+              {selected.neighborhood && <div className="flex justify-between"><span className="text-muted-foreground">Quartier</span> <span className="font-medium text-ink">{selected.neighborhood}</span></div>}
+              {(selected.gps_lat || selected.gps_lng) && (
+                <div className="flex justify-between"><span className="text-muted-foreground">GPS</span> <span className="font-medium text-ink">{selected.gps_lat}, {selected.gps_lng}</span></div>
+              )}
+            </div>
+            <button onClick={() => { setSelected(null); setEditing(null) }} className="mt-6 w-full rounded-full border border-border py-2.5 text-sm font-semibold text-ink">Fermer</button>
+          </div>
+        </div>
+      )}
+
+      {editing && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40" onClick={() => setEditing(null)}>
+          <div className="w-full max-w-lg rounded-3xl bg-card p-6 shadow-xl" onClick={e => e.stopPropagation()}>
+            <h3 className="font-display text-lg font-bold text-ink">Modifier : {editing.name}</h3>
+            <div className="mt-4 space-y-3">
+              <input value={editing.name} onChange={e => setEditing({ ...editing, name: e.target.value })}
+                placeholder="Nom" className="h-10 w-full rounded-full border border-border bg-background px-4 text-sm outline-none focus:border-primary" />
+              <input value={editing.address || ""} onChange={e => setEditing({ ...editing, address: e.target.value })}
+                placeholder="Adresse" className="h-10 w-full rounded-full border border-border bg-background px-4 text-sm outline-none focus:border-primary" />
+              <input value={editing.phone || ""} onChange={e => setEditing({ ...editing, phone: e.target.value })}
+                placeholder="Téléphone" className="h-10 w-full rounded-full border border-border bg-background px-4 text-sm outline-none focus:border-primary" />
+              <input value={editing.category || ""} onChange={e => setEditing({ ...editing, category: e.target.value })}
+                placeholder="Catégorie" className="h-10 w-full rounded-full border border-border bg-background px-4 text-sm outline-none focus:border-primary" />
+              <textarea value={editing.description || ""} onChange={e => setEditing({ ...editing, description: e.target.value })}
+                placeholder="Description" className="h-24 w-full rounded-2xl border border-border bg-background p-4 text-sm outline-none focus:border-primary" />
+              <input value={editing.district || ""} onChange={e => setEditing({ ...editing, district: e.target.value })}
+                placeholder="District" className="h-10 w-full rounded-full border border-border bg-background px-4 text-sm outline-none focus:border-primary" />
+              <input value={editing.neighborhood || ""} onChange={e => setEditing({ ...editing, neighborhood: e.target.value })}
+                placeholder="Quartier" className="h-10 w-full rounded-full border border-border bg-background px-4 text-sm outline-none focus:border-primary" />
+              <div className="flex gap-2">
+                <input value={editing.gps_lat || ""} onChange={e => setEditing({ ...editing, gps_lat: parseFloat(e.target.value) || undefined })}
+                  placeholder="Latitude" type="number" step="any" className="h-10 flex-1 rounded-full border border-border bg-background px-4 text-sm outline-none focus:border-primary" />
+                <input value={editing.gps_lng || ""} onChange={e => setEditing({ ...editing, gps_lng: parseFloat(e.target.value) || undefined })}
+                  placeholder="Longitude" type="number" step="any" className="h-10 flex-1 rounded-full border border-border bg-background px-4 text-sm outline-none focus:border-primary" />
+              </div>
+              <div className="flex gap-2">
+                <button onClick={handleSaveEdit} className="flex items-center gap-2 rounded-full gradient-primary px-5 py-2.5 text-sm font-bold text-primary-foreground">
+                  <Save className="h-4 w-4" /> Enregistrer
+                </button>
+                <button onClick={() => setEditing(null)} className="flex items-center gap-2 rounded-full border border-border px-5 py-2.5 text-sm font-semibold text-ink">
+                  <X className="h-4 w-4" /> Annuler
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {rejectModal && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40" onClick={() => setRejectModal(null)}>
           <div className="w-full max-w-md rounded-3xl bg-card p-6 shadow-xl" onClick={e => e.stopPropagation()}>
-            <h3 className="font-display text-lg font-bold text-ink">Refuser {selected.name}</h3>
+            <h3 className="font-display text-lg font-bold text-ink">Refuser {rejectModal.name}</h3>
             <textarea value={rejectReason} onChange={e => setRejectReason(e.target.value)}
               placeholder="Motif du refus..."
               className="mt-4 h-24 w-full rounded-2xl border border-border bg-background p-4 text-sm outline-none focus:border-primary" />
             <div className="mt-4 flex gap-2">
-              <button onClick={() => handleStatus(selected.id, "rejected", rejectReason)}
+              <button onClick={() => handleStatus(rejectModal.id, "rejected", rejectReason)}
                 className="flex-1 rounded-full bg-red-500 py-2.5 text-sm font-bold text-white">Confirmer le refus</button>
-              <button onClick={() => setSelected(null)} className="flex-1 rounded-full border border-border py-2.5 text-sm font-semibold text-ink">Annuler</button>
+              <button onClick={() => setRejectModal(null)} className="flex-1 rounded-full border border-border py-2.5 text-sm font-semibold text-ink">Annuler</button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {deleteModal && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40" onClick={() => setDeleteModal(null)}>
+          <div className="w-full max-w-md rounded-3xl bg-card p-6 shadow-xl" onClick={e => e.stopPropagation()}>
+            <h3 className="font-display text-lg font-bold text-ink">Supprimer la boutique</h3>
+            <p className="mt-2 text-sm text-ink-soft">Voulez-vous vraiment supprimer <strong>{deleteModal.name}</strong> ? Toutes les données associées (promotions, avis) seront supprimées. Cette action est irréversible.</p>
+            <div className="mt-4 flex gap-2">
+              <button onClick={() => handleDelete(deleteModal.id)} className="flex-1 rounded-full bg-red-500 py-2.5 text-sm font-bold text-white">Supprimer</button>
+              <button onClick={() => setDeleteModal(null)} className="flex-1 rounded-full border border-border py-2.5 text-sm font-semibold text-ink">Annuler</button>
             </div>
           </div>
         </div>

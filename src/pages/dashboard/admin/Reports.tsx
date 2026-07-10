@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react"
 import { supabase } from "@/lib/supabase"
-import { fetchReports, updateReportStatus } from "@/lib/admin"
-import { AlertTriangle, Search, Check, X, Eye, MessageCircle, Flag } from "lucide-react"
+import { fetchReports, updateReportStatus, deleteReport } from "@/lib/admin"
+import { AlertTriangle, Trash2, Search, Check, X, Eye, MessageCircle, Flag } from "lucide-react"
 import type { Report } from "@/types/admin"
 
 export default function AdminReports() {
@@ -20,6 +20,13 @@ export default function AdminReports() {
   const handleResolve = async (id: string, status: string) => {
     await updateReportStatus(id, status, notes)
     setReports(prev => prev.map(r => r.id === id ? { ...r, status: status as any, resolution_notes: notes } : r))
+    setSelected(null)
+    setNotes("")
+  }
+
+  const handleDelete = async (id: string) => {
+    await deleteReport(id)
+    setReports(prev => prev.filter(r => r.id !== id))
     setSelected(null)
     setNotes("")
   }
@@ -108,6 +115,10 @@ export default function AdminReports() {
                 <button onClick={() => handleResolve(selected.id, "investigating")}
                   className="flex items-center gap-2 rounded-full border border-border px-5 py-2.5 text-sm font-semibold text-ink">
                   <Eye className="h-4 w-4" /> En cours
+                </button>
+                <button onClick={() => { if (confirm("Supprimer ce signalement ?")) handleDelete(selected.id) }}
+                  className="flex items-center gap-2 rounded-full border border-red-500/30 px-5 py-2.5 text-sm font-semibold text-red-500">
+                  <Trash2 className="h-4 w-4" /> Supprimer
                 </button>
               </div>
             </div>

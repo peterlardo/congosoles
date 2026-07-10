@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react"
-import { fetchCategories, saveCategory, saveSubcategory } from "@/lib/admin"
-import { Layers, Plus, Edit3, X, Check, ChevronDown, ChevronRight } from "lucide-react"
+import { fetchCategories, saveCategory, saveSubcategory, deleteCategory, deleteSubcategory } from "@/lib/admin"
+import { Layers, Plus, Edit3, Trash2, X, Check, ChevronDown, ChevronRight } from "lucide-react"
 import type { AdminCategory, AdminSubcategory } from "@/types/admin"
 
 export default function AdminCategories() {
@@ -9,6 +9,8 @@ export default function AdminCategories() {
   const [editing, setEditing] = useState<AdminCategory | null>(null)
   const [newSub, setNewSub] = useState<{ categoryId: string; name: string } | null>(null)
   const [expanded, setExpanded] = useState<string[]>([])
+  const [confirmDelete, setConfirmDelete] = useState<string | null>(null)
+  const [editingSub, setEditingSub] = useState<AdminSubcategory | null>(null)
 
   useEffect(() => {
     fetchCategories().then(data => { setCategories(data); setLoading(false) })
@@ -36,6 +38,32 @@ export default function AdminCategories() {
     const data = await fetchCategories()
     setCategories(data)
     setNewSub(null)
+  }
+
+  const handleDeleteCategory = async (id: string) => {
+    await deleteCategory(id)
+    const data = await fetchCategories()
+    setCategories(data)
+    setConfirmDelete(null)
+  }
+
+  const handleDeleteSub = async (id: string) => {
+    await deleteSubcategory(id)
+    const data = await fetchCategories()
+    setCategories(data)
+  }
+
+  const handleSaveSub = async () => {
+    if (!editingSub) return
+    await saveSubcategory({
+      id: editingSub.id,
+      category_id: editingSub.category_id,
+      name: editingSub.name,
+      slug: editingSub.name.toLowerCase().replace(/\s+/g, "-"),
+    })
+    const data = await fetchCategories()
+    setCategories(data)
+    setEditingSub(null)
   }
 
   return (
@@ -74,15 +102,41 @@ export default function AdminCategories() {
                 <button onClick={() => setEditing(cat)} className="rounded-lg p-2 text-muted-foreground transition hover:bg-muted hover:text-ink">
                   <Edit3 className="h-4 w-4" />
                 </button>
+                <button onClick={() => setConfirmDelete(cat.id)} className="rounded-lg p-2 text-muted-foreground transition hover:bg-red-50 hover:text-red-500">
+                  <Trash2 className="h-4 w-4" />
+                </button>
               </div>
               {expanded.includes(cat.id) && (
                 <div className="border-t border-border/60 px-4 pb-4 pt-3 space-y-2">
                   {cat.subcategories?.map(sub => (
                     <div key={sub.id} className="flex items-center gap-3 rounded-xl bg-muted px-3 py-2">
-                      <span className="text-sm text-ink">{sub.name}</span>
-                      <span className={`rounded-full px-2 py-0.5 text-xs font-bold ${sub.is_active ? "bg-success/10 text-success" : "bg-muted text-muted-foreground"}`}>
-                        {sub.is_active ? "Actif" : "Inactif"}
-                      </span>
+                      {editingSub?.id === sub.id ? (
+                        <>
+                          <input value={editingSub.name} onChange={e => setEditingSub({ ...editingSub, name: e.target.value })}
+                            className="h-7 flex-1 rounded-full border border-border bg-background px-3 text-sm outline-none"
+                            onKeyDown={e => { if (e.key === "Enter") handleSaveSub(); if (e.key === "Escape") setEditingSub(null) }}
+                            autoFocus
+                          />
+                          <button onClick={handleSaveSub} className="grid h-7 w-7 place-items-center rounded-full bg-primary text-primary-foreground">
+                            <Check className="h-3 w-3" />
+                          </button>
+                          <button onClick={() => setEditingSub(null)} className="grid h-7 w-7 place-items-center rounded-full border border-border text-muted-foreground">
+                            <X className="h-3 w-3" />
+                          </button>
+                        </>
+                      ) : (
+                        <>
+                          <button onClick={() => setEditingSub(sub)} className="flex-1 text-left text-sm text-ink hover:text-primary transition">
+                            {sub.name}
+                          </button>
+                          <span className={`rounded-full px-2 py-0.5 text-xs font-bold ${sub.is_active ? "bg-success/10 text-success" : "bg-muted text-muted-foreground"}`}>
+                            {sub.is_active ? "Actif" : "Inactif"}
+                          </span>
+                          <button onClick={() => handleDeleteSub(sub.id)} className="rounded-lg p-1 text-muted-foreground transition hover:bg-red-50 hover:text-red-500">
+                            <Trash2 className="h-3.5 w-3.5" />
+                          </button>
+                        </>
+                      )}
                     </div>
                   ))}
                   <button onClick={() => setNewSub({ categoryId: cat.id, name: "" })}
@@ -136,6 +190,25 @@ export default function AdminCategories() {
                   Annuler
                 </button>
               </div>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {confirmDelete && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40" onClick={() => setConfirmDelete(null)}>
+          <div className="w-full max-w-sm rounded-3xl bg-card p-6 shadow-xl" onClick={e => e.stopPropagation()}>
+            <h3 className="font-display text-lg font-bold text-ink">Supprimer la catégorie</h3>
+            <p className="mt-2 text-sm text-ink-soft">Cette action est irréversible. Toutes les sous-catégories associées seront également supprimées.</p>
+            <div className="mt-5 flex gap-2">
+              <button onClick={() => handleDeleteCategory(confirmDelete)}
+                className="flex-1 rounded-full bg-red-500 py-2.5 text-sm font-bold text-white hover:bg-red-600">
+                Supprimer
+              </button>
+              <button onClick={() => setConfirmDelete(null)}
+                className="flex-1 rounded-full border border-border py-2.5 text-sm font-semibold text-ink">
+                Annuler
+              </button>
             </div>
           </div>
         </div>

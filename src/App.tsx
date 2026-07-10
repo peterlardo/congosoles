@@ -28,6 +28,7 @@ import AdminCMSPages from "@/pages/dashboard/admin/CMSPages"
 import AdminSupport from "@/pages/dashboard/admin/Support"
 import AdminActivityLog from "@/pages/dashboard/admin/ActivityLog"
 import AdminSettings from "@/pages/dashboard/admin/Settings"
+import AdminContracts from "@/pages/dashboard/admin/Contracts"
 import Category from "@/pages/Category"
 import PromoDetail from "@/pages/PromoDetail"
 import StoreDetail from "@/pages/StoreDetail"
@@ -81,6 +82,7 @@ function App() {
               <Route path="admin/activity" element={<AdminActivityLog />} />
               <Route path="admin/trends" element={<AdminTrends />} />
               <Route path="admin/settings" element={<AdminSettings />} />
+              <Route path="admin/contracts" element={<AdminContracts />} />
             </Route>
 
             {/* Public pages - with header/footer */}
