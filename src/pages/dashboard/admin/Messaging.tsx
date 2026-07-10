@@ -25,15 +25,17 @@ export default function AdminMessaging() {
 
   useEffect(() => {
     Promise.all([
-      supabase.from("messages").select("*, sender:profiles!messages_sender_id_fkey(name), receiver:profiles!messages_receiver_id_fkey(name)").order("created_at", { ascending: false }),
-      supabase.from("profiles").select("id, name, email").neq("role", "super_admin"),
-    ]).then(([msgs, profs]) => {
-      setMessages((msgs.data as any[])?.map(m => ({
+      supabase.from("messages").select("*").order("created_at", { ascending: false }),
+      supabase.from("profiles").select("id, name, email, role"),
+    ]).then(([msgsRes, profsRes]) => {
+      const profiles = (profsRes.data as any[]) || []
+      const profileMap = new Map(profiles.map(p => [p.id, p]))
+      setMessages((msgsRes.data as any[])?.map(m => ({
         ...m,
-        sender_name: m.sender?.name,
-        receiver_name: m.receiver?.name,
+        sender_name: profileMap.get(m.sender_id)?.name,
+        receiver_name: profileMap.get(m.receiver_id)?.name,
       })) || [])
-      setUsers((profs.data as any[]) || [])
+      setUsers(profiles.filter(p => p.role !== "super_admin"))
       setLoading(false)
     })
   }, [])
@@ -53,12 +55,16 @@ export default function AdminMessaging() {
     })
     setShowCompose(false)
     setCompose({ receiver_id: "", subject: "", body: "" })
-    const { data } = await supabase.from("messages")
-      .select("*, sender:profiles!messages_sender_id_fkey(name), receiver:profiles!messages_receiver_id_fkey(name)")
+    const { data: msgsData } = await supabase.from("messages")
+      .select("*")
       .order("created_at", { ascending: false })
-    setMessages((data as any[])?.map(m => ({
-      ...m, sender_name: m.sender?.name, receiver_name: m.receiver?.name,
+    const { data: profsData } = await supabase.from("profiles").select("id, name, email, role")
+    const profiles = (profsData || []) as any[]
+    const profileMap = new Map(profiles.map(p => [p.id, p]))
+    setMessages((msgsData as any[])?.map(m => ({
+      ...m, sender_name: profileMap.get(m.sender_id)?.name, receiver_name: profileMap.get(m.receiver_id)?.name,
     })) || [])
+    setUsers(profiles.filter(p => p.role !== "super_admin"))
   }
 
   const handleDelete = async (id: string) => {

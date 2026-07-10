@@ -7,6 +7,13 @@ import type {
   ContractTemplate, Contract
 } from "@/types/admin"
 
+async function fetchProfilesMap(userIds: string[]): Promise<Map<string, { email: string; name: string }>> {
+  const ids = [...new Set(userIds.filter(Boolean))]
+  if (!ids.length) return new Map()
+  const { data } = await supabase.from("profiles").select("id, email, name").in("id", ids)
+  return new Map((data || []).map(p => [p.id, { email: p.email || "", name: p.name || "" }]))
+}
+
 export async function logActivity(action: string, entityType: string, entityId: string, details?: any) {
   await supabase.from("activity_logs").insert({
     user_id: (await supabase.auth.getUser()).data.user?.id,
@@ -37,16 +44,20 @@ export async function deleteUser(userId: string) {
 
 // Stores
 export async function fetchAdminStores(status?: string, search?: string): Promise<AdminStore[]> {
-  let query = supabase.from("stores").select("*, profiles!stores_user_id_fkey(email, name)")
+  let query = supabase.from("stores").select("*")
   if (status && status !== "all") query = query.eq("status", status)
   if (search) query = query.ilike("name", `%${search}%`)
   query = query.order("created_at", { ascending: false })
-  const { data } = await query
-  return (data as any[])?.map((s: any) => ({
+  const { data: stores } = await query
+  if (!stores) return []
+  const userIds = [...new Set((stores as any[]).map(s => s.user_id).filter(Boolean))]
+  const { data: profiles } = await supabase.from("profiles").select("id, email, name").in("id", userIds)
+  const profileMap = Object.fromEntries((profiles || []).map(p => [p.id, p]))
+  return (stores as any[]).map(s => ({
     ...s,
-    owner_email: s.profiles?.email || "",
-    owner_name: s.profiles?.name || ""
-  })) || []
+    owner_email: profileMap[s.user_id]?.email || "",
+    owner_name: profileMap[s.user_id]?.name || ""
+  }))
 }
 
 export async function updateStoreStatus(storeId: string, status: string, reason?: string) {
@@ -181,13 +192,15 @@ export async function deleteNeighborhood(id: string) {
 export async function fetchSubscriptions(): Promise<Subscription[]> {
   const { data } = await supabase
     .from("subscriptions")
-    .select("*, subscription_plans!subscriptions_plan_id_fkey(name), profiles!subscriptions_user_id_fkey(email)")
+    .select("*, subscription_plans!subscriptions_plan_id_fkey(name)")
     .order("created_at", { ascending: false })
-  return (data as any[])?.map(s => ({
+  const subs = (data as any[]) || []
+  const profilesMap = await fetchProfilesMap(subs.map(s => s.user_id))
+  return subs.map(s => ({
     ...s,
     plan_name: s.subscription_plans?.name || "",
-    user_email: s.profiles?.email || ""
-  })) || []
+    user_email: profilesMap.get(s.user_id)?.email || ""
+  }))
 }
 
 export async function cancelSubscription(subId: string) {
@@ -227,20 +240,24 @@ export async function deleteSubscriptionPlan(id: string) {
 export async function fetchPayments(): Promise<Payment[]> {
   const { data } = await supabase
     .from("payments")
-    .select("*, profiles!payments_user_id_fkey(email)")
+    .select("*")
     .order("created_at", { ascending: false })
-  return (data as any[])?.map(p => ({ ...p, user_email: p.profiles?.email || "" })) || []
+  const payments = (data as any[]) || []
+  const profilesMap = await fetchProfilesMap(payments.map(p => p.user_id))
+  return payments.map(p => ({ ...p, user_email: profilesMap.get(p.user_id)?.email || "" }))
 }
 
 // Campaigns
 export async function fetchCampaigns(): Promise<SponsoredCampaign[]> {
   const { data } = await supabase
     .from("sponsored_campaigns")
-    .select("*, stores!sponsored_campaigns_store_id_fkey(name), profiles!sponsored_campaigns_user_id_fkey(email)")
+    .select("*, stores!sponsored_campaigns_store_id_fkey(name)")
     .order("created_at", { ascending: false })
-  return (data as any[])?.map(c => ({
-    ...c, store_name: c.stores?.name || "", user_email: c.profiles?.email || ""
-  })) || []
+  const campaigns = (data as any[]) || []
+  const profilesMap = await fetchProfilesMap(campaigns.map(c => c.user_id))
+  return campaigns.map(c => ({
+    ...c, store_name: c.stores?.name || "", user_email: profilesMap.get(c.user_id)?.email || ""
+  }))
 }
 
 // Banners
@@ -253,22 +270,30 @@ export async function fetchBanners(): Promise<Banner[]> {
 export async function fetchReviews(): Promise<Review[]> {
   const { data } = await supabase
     .from("reviews")
-    .select("*, stores!reviews_store_id_fkey(name), profiles!reviews_user_id_fkey(name)")
+    .select("*, stores!reviews_store_id_fkey(name)")
     .order("created_at", { ascending: false })
-  return (data as any[])?.map(r => ({
-    ...r, store_name: r.stores?.name || "", user_name: r.profiles?.name || ""
-  })) || []
+  const reviews = (data as any[]) || []
+  const profilesMap = await fetchProfilesMap(reviews.map(r => r.user_id))
+  return reviews.map(r => ({
+    ...r, store_name: r.stores?.name || "", user_name: profilesMap.get(r.user_id)?.name || ""
+  }))
 }
 
 // Reports
 export async function fetchReports(): Promise<Report[]> {
   const { data } = await supabase
     .from("reports")
-    .select("*, profiles!reports_reporter_id_fkey(name), handled:profiles!reports_handled_by_fkey(name)")
+    .select("*")
     .order("created_at", { ascending: false })
-  return (data as any[])?.map(r => ({
-    ...r, reporter_name: r.profiles?.name || "", handler_name: r.handled?.name || ""
-  })) || []
+  const reports = (data as any[]) || []
+  const uids = new Set<string>()
+  reports.forEach(r => { if (r.reporter_id) uids.add(r.reporter_id); if (r.handled_by) uids.add(r.handled_by) })
+  const profilesMap = await fetchProfilesMap([...uids])
+  return reports.map(r => ({
+    ...r,
+    reporter_name: profilesMap.get(r.reporter_id)?.name || "",
+    handler_name: profilesMap.get(r.handled_by)?.name || ""
+  }))
 }
 
 export async function updateReportStatus(reportId: string, status: string, notes?: string) {
@@ -351,23 +376,32 @@ export async function assignTicket(ticketId: string, assignedTo: string) {
 export async function fetchTickets(): Promise<SupportTicket[]> {
   const { data } = await supabase
     .from("support_tickets")
-    .select("*, profiles!support_tickets_user_id_fkey(name, email), assignee:profiles!support_tickets_assigned_to_fkey(name)")
+    .select("*")
     .order("created_at", { ascending: false })
-  return (data as any[])?.map(t => ({
-    ...t, user_name: t.profiles?.name || "", user_email: t.profiles?.email || "", assignee_name: t.assignee?.name || ""
-  })) || []
+  const tickets = (data as any[]) || []
+  const uids = new Set<string>()
+  tickets.forEach(t => { if (t.user_id) uids.add(t.user_id); if (t.assigned_to) uids.add(t.assigned_to) })
+  const profilesMap = await fetchProfilesMap([...uids])
+  return tickets.map(t => ({
+    ...t,
+    user_name: profilesMap.get(t.user_id)?.name || "",
+    user_email: profilesMap.get(t.user_id)?.email || "",
+    assignee_name: profilesMap.get(t.assigned_to)?.name || ""
+  }))
 }
 
 // Activity Logs
 export async function fetchActivityLogs(limit = 100): Promise<ActivityLog[]> {
   const { data } = await supabase
     .from("activity_logs")
-    .select("*, profiles!activity_logs_user_id_fkey(name, email)")
+    .select("*")
     .order("created_at", { ascending: false })
     .limit(limit)
-  return (data as any[])?.map(l => ({
-    ...l, user_name: l.profiles?.name || "", user_email: l.profiles?.email || ""
-  })) || []
+  const logs = (data as any[]) || []
+  const profilesMap = await fetchProfilesMap(logs.map(l => l.user_id))
+  return logs.map(l => ({
+    ...l, user_name: profilesMap.get(l.user_id)?.name || "", user_email: profilesMap.get(l.user_id)?.email || ""
+  }))
 }
 
 // Settings
@@ -405,14 +439,16 @@ export async function deleteContractTemplate(id: string) {
 export async function fetchContracts(): Promise<Contract[]> {
   const { data } = await supabase
     .from("contracts")
-    .select("*, stores!contracts_store_id_fkey(name), profiles!contracts_user_id_fkey(email), contract_templates!contracts_template_id_fkey(title)")
+    .select("*, stores!contracts_store_id_fkey(name), contract_templates!contracts_template_id_fkey(title)")
     .order("created_at", { ascending: false })
-  return (data as any[])?.map(c => ({
+  const contracts = (data as any[]) || []
+  const profilesMap = await fetchProfilesMap(contracts.map(c => c.user_id))
+  return contracts.map(c => ({
     ...c,
     store_name: c.stores?.name || "",
-    user_email: c.profiles?.email || "",
+    user_email: profilesMap.get(c.user_id)?.email || "",
     template_title: c.contract_templates?.title || ""
-  })) || []
+  }))
 }
 
 export async function saveContract(contract: Partial<Contract>) {

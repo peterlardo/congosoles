@@ -26,9 +26,11 @@ export default function AdminSupport() {
   const selectTicket = async (ticket: SupportTicket) => {
     setSelected(ticket)
     const { data: msgs } = await supabase.from("ticket_messages")
-      .select("*, profiles!ticket_messages_user_id_fkey(name)")
+      .select("*")
       .eq("ticket_id", ticket.id).order("created_at")
-    const messages = (msgs as any[])?.map(m => ({ ...m, user_name: m.profiles?.name })) || []
+    const messages = (msgs as any[])?.map(m => ({
+      ...m, user_name: m.user_id === ticket.user_id ? ticket.user_name : "Admin"
+    })) || []
     setSelected({ ...ticket, messages })
   }
 
@@ -42,8 +44,8 @@ export default function AdminSupport() {
     if (!reply.trim() || !selected) return
     const { data } = await supabase.from("ticket_messages").insert({
       ticket_id: selected.id, user_id: (await supabase.auth.getUser()).data.user?.id, message: reply
-    }).select("*, profiles!ticket_messages_user_id_fkey(name)").single()
-    const msg = { ...(data as any), user_name: data?.profiles?.name } as TicketMessage
+    }).select().single()
+    const msg = { ...(data as any), user_name: "Admin" } as TicketMessage
     setSelected(prev => prev ? { ...prev, messages: [...(prev.messages || []), msg] } : prev)
     setReply("")
     if (selected.status === "open") {
