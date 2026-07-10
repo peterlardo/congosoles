@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react"
 import { useAuth } from "@/contexts/AuthContext"
 import { supabase } from "@/lib/supabase"
-import { Store, Save, Image, MapPin, Phone, Globe } from "lucide-react"
+import { Store, Save, Image, MapPin, Phone, Globe, Plus, X } from "lucide-react"
 
 interface Boutique {
   id: string
@@ -74,11 +74,20 @@ export default function DashboardBoutique() {
     )
   }
 
+  const [showCreate, setShowCreate] = useState(false)
+  const [newStore, setNewStore] = useState({ name: "", address: "", phone: "", category: "", description: "" })
+
   return (
     <div className="space-y-6">
-      <div>
-        <h1 className="font-display text-2xl font-bold text-ink">Ma boutique</h1>
-        <p className="mt-1 text-sm text-ink-soft">Configurez les informations de votre boutique.</p>
+      <div className="flex items-center justify-between">
+        <div>
+          <h1 className="font-display text-2xl font-bold text-ink">Ma boutique</h1>
+          <p className="mt-1 text-sm text-ink-soft">Configurez les informations de votre boutique.</p>
+        </div>
+        <button onClick={() => setShowCreate(true)}
+          className="inline-flex items-center gap-2 rounded-full gradient-primary px-5 py-2.5 text-sm font-bold text-primary-foreground shadow-glow transition hover:opacity-95">
+          <Plus className="h-4 w-4" /> Nouvelle boutique
+        </button>
       </div>
 
       <div className="grid gap-6 lg:grid-cols-3">
@@ -197,6 +206,45 @@ export default function DashboardBoutique() {
           </div>
         </div>
       </div>
+
+      {showCreate && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40" onClick={() => setShowCreate(false)}>
+          <div className="w-full max-w-lg rounded-3xl bg-card p-6 shadow-xl" onClick={e => e.stopPropagation()}>
+            <h3 className="font-display text-lg font-bold text-ink">Nouvelle boutique</h3>
+            <div className="mt-4 space-y-3">
+              <input value={newStore.name} onChange={e => setNewStore({ ...newStore, name: e.target.value })}
+                placeholder="Nom *" className="h-10 w-full rounded-full border border-border bg-background px-4 text-sm outline-none focus:border-primary" />
+              <input value={newStore.category} onChange={e => setNewStore({ ...newStore, category: e.target.value })}
+                placeholder="Catégorie *" className="h-10 w-full rounded-full border border-border bg-background px-4 text-sm outline-none focus:border-primary" />
+              <input value={newStore.address} onChange={e => setNewStore({ ...newStore, address: e.target.value })}
+                placeholder="Adresse" className="h-10 w-full rounded-full border border-border bg-background px-4 text-sm outline-none focus:border-primary" />
+              <input value={newStore.phone} onChange={e => setNewStore({ ...newStore, phone: e.target.value })}
+                placeholder="Téléphone" className="h-10 w-full rounded-full border border-border bg-background px-4 text-sm outline-none focus:border-primary" />
+              <textarea value={newStore.description} onChange={e => setNewStore({ ...newStore, description: e.target.value })}
+                placeholder="Description" className="h-24 w-full rounded-2xl border border-border bg-background p-4 text-sm outline-none focus:border-primary" />
+              <div className="flex gap-2 pt-2">
+                <button onClick={async () => {
+                  if (!newStore.name || !newStore.category || !user) return
+                  const { error } = await supabase.from("stores").insert({
+                    user_id: user.id, name: newStore.name, category: newStore.category,
+                    slug: slugify(newStore.name) + "-" + Date.now().toString(36),
+                    address: newStore.address || null, phone: newStore.phone || null,
+                    description: newStore.description || null, status: "active",
+                  })
+                  if (error) { alert("Erreur : " + error.message); return }
+                  setShowCreate(false)
+                  setNewStore({ name: "", address: "", phone: "", category: "", description: "" })
+                  const { data } = await supabase.from("stores").select("*").eq("user_id", user.id).maybeSingle()
+                  if (data) setBoutique(data)
+                }} className="flex items-center gap-2 rounded-full gradient-primary px-6 py-2.5 text-sm font-bold text-primary-foreground">
+                  <Plus className="h-4 w-4" /> Créer
+                </button>
+                <button onClick={() => setShowCreate(false)} className="rounded-full border border-border px-6 py-2.5 text-sm font-semibold text-ink">Annuler</button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   )
 }
