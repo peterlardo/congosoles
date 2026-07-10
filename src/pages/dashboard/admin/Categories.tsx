@@ -1,11 +1,13 @@
 import { useEffect, useState } from "react"
 import { fetchCategories, saveCategory, saveSubcategory, deleteCategory, deleteSubcategory } from "@/lib/admin"
-import { Layers, Plus, Edit3, Trash2, X, Check, ChevronDown, ChevronRight } from "lucide-react"
+import { Search, Plus, Edit3, Trash2, X, Check, ChevronDown, ChevronRight } from "lucide-react"
 import type { AdminCategory, AdminSubcategory } from "@/types/admin"
 
 export default function AdminCategories() {
   const [categories, setCategories] = useState<AdminCategory[]>([])
   const [loading, setLoading] = useState(true)
+  const [search, setSearch] = useState("")
+  const [statusFilter, setStatusFilter] = useState("all")
   const [editing, setEditing] = useState<AdminCategory | null>(null)
   const [newSub, setNewSub] = useState<{ categoryId: string; name: string } | null>(null)
   const [expanded, setExpanded] = useState<string[]>([])
@@ -15,6 +17,13 @@ export default function AdminCategories() {
   useEffect(() => {
     fetchCategories().then(data => { setCategories(data); setLoading(false) })
   }, [])
+
+  const filtered = categories.filter(cat => {
+    if (search && !cat.name.toLowerCase().includes(search.toLowerCase())) return false
+    if (statusFilter === "active" && !cat.is_active) return false
+    if (statusFilter === "inactive" && cat.is_active) return false
+    return true
+  })
 
   const toggleExpand = (id: string) => {
     setExpanded(prev => prev.includes(id) ? prev.filter(i => i !== id) : [...prev, id])
@@ -71,7 +80,7 @@ export default function AdminCategories() {
       <div className="flex items-center justify-between">
         <div>
           <h1 className="font-display text-2xl font-bold text-ink">Catégories</h1>
-          <p className="mt-1 text-sm text-ink-soft">{categories.length} catégories</p>
+          <p className="mt-1 text-sm text-ink-soft">{categories.length} catégorie{categories.length > 1 ? "s" : ""}</p>
         </div>
         <button onClick={() => setEditing({ id: "", name: "", slug: "", display_order: categories.length + 1, is_active: true } as any)}
           className="inline-flex items-center gap-2 rounded-full gradient-primary px-5 py-2.5 text-sm font-bold text-primary-foreground">
@@ -79,11 +88,26 @@ export default function AdminCategories() {
         </button>
       </div>
 
+      <div className="flex items-center gap-3">
+        <div className="relative flex-1">
+          <Search className="absolute left-3.5 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
+          <input type="text" value={search} onChange={e => setSearch(e.target.value)}
+            placeholder="Rechercher une catégorie..."
+            className="h-10 w-full rounded-full border border-border bg-background pl-10 pr-4 text-sm text-ink outline-none transition focus:border-primary" />
+        </div>
+        <select value={statusFilter} onChange={e => setStatusFilter(e.target.value)}
+          className="h-10 rounded-full border border-border bg-card px-4 text-sm font-semibold text-ink outline-none transition focus:border-primary">
+          <option value="all">Tous</option>
+          <option value="active">Actif</option>
+          <option value="inactive">Inactif</option>
+        </select>
+      </div>
+
       {loading ? (
         <div className="space-y-3">{[1,2,3,4].map(i => <div key={i} className="h-16 animate-pulse rounded-2xl bg-muted" />)}</div>
       ) : (
         <div className="space-y-2">
-          {categories.map(cat => (
+          {filtered.map(cat => (
             <div key={cat.id} className="rounded-2xl border border-border/60 bg-card shadow-card">
               <div className="flex items-center gap-3 p-4">
                 <button onClick={() => toggleExpand(cat.id)} className="text-muted-foreground">
@@ -163,6 +187,11 @@ export default function AdminCategories() {
               )}
             </div>
           ))}
+          {filtered.length === 0 && (
+            <div className="rounded-2xl border border-border/60 bg-card p-12 text-center">
+              <p className="text-sm text-ink-soft">Aucune catégorie trouvée</p>
+            </div>
+          )}
         </div>
       )}
 
