@@ -44,43 +44,45 @@ export function TodayPromos() {
           </div>
           <Link to="/promos" className="inline-flex items-center gap-2 rounded-full border border-border px-4 py-2 text-sm font-semibold text-ink transition hover:border-primary hover:text-primary">Tout voir <ArrowRight className="h-4 w-4" /></Link>
         </div>
-        <div className="mt-6 grid max-w-3xl gap-3 rounded-3xl border border-border/60 bg-card p-3 shadow-card sm:grid-cols-3">
-          <label className="flex flex-col gap-1.5">
-            <span className="px-2 text-[11px] font-bold uppercase tracking-widest text-muted-foreground">Ville</span>
-            <select
-              value={city}
-              onChange={(e) => handleFilterChange(setCity)(e.target.value)}
-              className="h-11 rounded-full border border-border bg-background px-4 text-sm font-semibold text-ink outline-none transition focus:border-primary"
-            >
-              {cities.map((option) => (
-                <option key={option} value={option}>{option}</option>
-              ))}
-            </select>
-          </label>
-          <label className="flex flex-col gap-1.5">
-            <span className="px-2 text-[11px] font-bold uppercase tracking-widest text-muted-foreground">Catégorie</span>
-            <select
-              value={category}
-              onChange={(e) => handleFilterChange(setCategory)(e.target.value)}
-              className="h-11 rounded-full border border-border bg-background px-4 text-sm font-semibold text-ink outline-none transition focus:border-primary"
-            >
-              {categories.map((option) => (
-                <option key={option} value={option}>{option}</option>
-              ))}
-            </select>
-          </label>
-          <label className="flex flex-col gap-1.5">
-            <span className="px-2 text-[11px] font-bold uppercase tracking-widest text-muted-foreground">Boutique</span>
-            <select
-              value={shop}
-              onChange={(e) => handleFilterChange(setShop)(e.target.value)}
-              className="h-11 rounded-full border border-border bg-background px-4 text-sm font-semibold text-ink outline-none transition focus:border-primary"
-            >
-              {shops.map((option) => (
-                <option key={option} value={option}>{option}</option>
-              ))}
-            </select>
-          </label>
+        <div className="mt-6 rounded-3xl bg-gradient-to-br from-orange-500 via-orange-500 to-red-500 p-4 shadow-lg sm:p-5">
+          <div className="grid gap-3 sm:grid-cols-3">
+            <label className="flex flex-col gap-1.5">
+              <span className="px-1 text-[11px] font-bold uppercase tracking-widest text-white/70">Ville</span>
+              <select
+                value={city}
+                onChange={(e) => handleFilterChange(setCity)(e.target.value)}
+                className="h-11 rounded-full border border-white/20 bg-white/15 px-4 text-sm font-semibold text-white outline-none backdrop-blur transition placeholder:text-white/50 focus:border-white/50 focus:bg-white/25"
+              >
+                {cities.map((option) => (
+                  <option key={option} value={option} className="text-ink">{option}</option>
+                ))}
+              </select>
+            </label>
+            <label className="flex flex-col gap-1.5">
+              <span className="px-1 text-[11px] font-bold uppercase tracking-widest text-white/70">Catégorie</span>
+              <select
+                value={category}
+                onChange={(e) => handleFilterChange(setCategory)(e.target.value)}
+                className="h-11 rounded-full border border-white/20 bg-white/15 px-4 text-sm font-semibold text-white outline-none backdrop-blur transition placeholder:text-white/50 focus:border-white/50 focus:bg-white/25"
+              >
+                {categories.map((option) => (
+                  <option key={option} value={option} className="text-ink">{option}</option>
+                ))}
+              </select>
+            </label>
+            <label className="flex flex-col gap-1.5">
+              <span className="px-1 text-[11px] font-bold uppercase tracking-widest text-white/70">Boutique</span>
+              <select
+                value={shop}
+                onChange={(e) => handleFilterChange(setShop)(e.target.value)}
+                className="h-11 rounded-full border border-white/20 bg-white/15 px-4 text-sm font-semibold text-white outline-none backdrop-blur transition placeholder:text-white/50 focus:border-white/50 focus:bg-white/25"
+              >
+                {shops.map((option) => (
+                  <option key={option} value={option} className="text-ink">{option}</option>
+                ))}
+              </select>
+            </label>
+          </div>
         </div>
         <div className="mt-4 text-sm font-medium text-ink-soft">
           {filteredProducts.length} promotion{filteredProducts.length > 1 ? "s" : ""} trouvée{filteredProducts.length > 1 ? "s" : ""}
