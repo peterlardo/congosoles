@@ -1,6 +1,4 @@
-import { Button } from "@/components/ui/button"
-import { Input } from "@/components/ui/input"
-import { Search, MapPin } from "lucide-react"
+import { MapPin } from "lucide-react"
 
 const cities = ["Brazzaville", "Pointe-Noire", "Dolisie", "Ouesso"]
 const searchTerms = ["Riz", "Smartphones", "Sneakers", "Wax", "Restaurants", "Frigo"]
@@ -38,19 +36,7 @@ export function Hero() {
               ))}
             </div>
 
-            <div className="relative mt-6 max-w-xl rounded-full border border-border bg-card p-1 shadow-card">
-              <Search className="absolute left-5 top-1/2 h-5 w-5 -translate-y-1/2 text-muted-foreground" />
-              <Input
-                type="text"
-                placeholder="Rechercher un produit, une marque, un commerce..."
-                className="h-12 rounded-full border-0 bg-transparent pl-12 pr-32 text-ink shadow-none focus-visible:ring-0"
-              />
-              <Button className="absolute right-1.5 top-1/2 h-10 -translate-y-1/2 rounded-full gradient-primary px-5 text-xs font-bold text-primary-foreground shadow-glow hover:opacity-95">
-                Rechercher
-              </Button>
-            </div>
-
-            <div className="mt-4 flex flex-wrap gap-2">
+            <div className="mt-6 flex flex-wrap gap-2">
               {searchTerms.map((term) => (
                 <button
                   key={term}
@@ -64,7 +50,7 @@ export function Hero() {
 
           <div className="relative hidden lg:block">
             <div className="absolute -inset-4 rounded-[2rem] gradient-primary opacity-20 blur-2xl" />
-            <img src="https://congosoles.lovable.app/assets/hero-market-BkvzFEJE.jpg" alt="" className="relative aspect-[4/3] w-full rounded-[2rem] object-cover shadow-lift" />
+            <img src="/assets/hero.jpg" alt="" className="relative aspect-[4/3] w-full rounded-[2rem] object-cover shadow-lift" />
             <div className="absolute -bottom-6 left-8 rounded-3xl bg-card p-5 shadow-lift ring-1 ring-border/60">
               <div className="text-xs font-bold uppercase tracking-widest text-primary">Économies aujourd'hui</div>
               <div className="mt-1 font-display text-4xl font-bold text-ink">−47 %</div>
