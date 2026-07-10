@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react"
 import { supabase } from "@/lib/supabase"
 import { sendNotification, deleteNotification } from "@/lib/admin"
-import { Bell, Send, Trash2, Users, Store, Tag } from "lucide-react"
+import { Bell, Send, Search, Trash2, Users, Store, Tag } from "lucide-react"
 import type { Notification } from "@/types/admin"
 import Pagination from "@/components/Pagination"
 
@@ -15,7 +15,14 @@ export default function AdminNotifications() {
   })
   const [page, setPage] = useState(1)
   const pageSize = 6
-  const paged = notifications.slice((page - 1) * pageSize, page * pageSize)
+  const [search, setSearch] = useState("")
+  const [typeFilter, setTypeFilter] = useState("all")
+  const filtered = notifications.filter(n => {
+    if (search && !n.title.toLowerCase().includes(search.toLowerCase())) return false
+    if (typeFilter !== "all" && n.type !== typeFilter) return false
+    return true
+  })
+  const paged = filtered.slice((page - 1) * pageSize, page * pageSize)
 
   const load = async () => {
     const { data } = await supabase.from("notifications").select("*").order("created_at", { ascending: false }).limit(50)
@@ -26,6 +33,7 @@ export default function AdminNotifications() {
   useEffect(() => { load() }, [])
 
   useEffect(() => setPage(1), [notifications])
+  useEffect(() => setPage(1), [search, typeFilter])
 
   const handleSend = async () => {
     await sendNotification(form as Notification)
@@ -51,6 +59,23 @@ export default function AdminNotifications() {
           className="inline-flex items-center gap-2 rounded-full gradient-primary px-5 py-2.5 text-sm font-bold text-primary-foreground">
           <Send className="h-4 w-4" /> Envoyer
         </button>
+      </div>
+
+      <div className="flex gap-3">
+        <div className="relative flex-1">
+          <Search className="absolute left-4 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
+          <input value={search} onChange={e => setSearch(e.target.value)}
+            placeholder="Rechercher une notification..."
+            className="h-10 w-full rounded-full border border-border bg-background pl-10 pr-4 text-sm outline-none focus:border-primary" />
+        </div>
+        <select value={typeFilter} onChange={e => setTypeFilter(e.target.value)}
+          className="h-10 rounded-full border border-border bg-background px-4 text-sm outline-none focus:border-primary">
+          <option value="all">Tous les types</option>
+          <option value="system">Système</option>
+          <option value="promotion">Promotion</option>
+          <option value="payment">Paiement</option>
+          <option value="marketing">Marketing</option>
+        </select>
       </div>
 
       {showForm && (
@@ -110,7 +135,7 @@ export default function AdminNotifications() {
               </button>
             </div>
           ))}
-          <Pagination current={page} total={notifications.length} pageSize={pageSize} onChange={setPage} />
+          <Pagination current={page} total={filtered.length} pageSize={pageSize} onChange={setPage} />
         </div>
       )}
     </div>

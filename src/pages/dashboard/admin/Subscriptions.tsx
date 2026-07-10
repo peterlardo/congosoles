@@ -11,6 +11,7 @@ export default function AdminSubscriptions() {
   const [subscriptions, setSubscriptions] = useState<Subscription[]>([])
   const [plans, setPlans] = useState<SubscriptionPlan[]>([])
   const [loading, setLoading] = useState(true)
+  const [search, setSearch] = useState("")
   const [statusFilter, setStatusFilter] = useState<string>("all")
   const [editingPlan, setEditingPlan] = useState<SubscriptionPlan | null>(null)
   const [confirmCancel, setConfirmCancel] = useState<string | null>(null)
@@ -58,10 +59,14 @@ export default function AdminSubscriptions() {
     setConfirmDeletePlan(null)
   }
 
-  const filteredSubs = statusFilter === "all" ? subscriptions : subscriptions.filter(s => s.status === statusFilter)
+  const filteredSubs = subscriptions.filter(s => {
+    const matchesSearch = !search || s.user_email?.toLowerCase().includes(search.toLowerCase())
+    const matchesStatus = statusFilter === "all" || s.status === statusFilter
+    return matchesSearch && matchesStatus
+  })
   const paged = filteredSubs.slice((page - 1) * pageSize, page * pageSize)
 
-  useEffect(() => setPage(1), [filteredSubs.length])
+  useEffect(() => setPage(1), [search, statusFilter])
 
   return (
     <div className="space-y-6">
@@ -88,7 +93,8 @@ export default function AdminSubscriptions() {
           <div className="flex items-center gap-3">
             <div className="relative flex-1">
               <Search className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
-              <input placeholder="Rechercher..." className="h-10 w-full rounded-full border border-border bg-background pl-9 pr-4 text-sm outline-none focus:border-primary" />
+              <input placeholder="Rechercher un abonnement..." value={search} onChange={e => setSearch(e.target.value)}
+                className="h-10 w-full rounded-full border border-border bg-background pl-9 pr-4 text-sm outline-none focus:border-primary" />
             </div>
             <select value={statusFilter} onChange={e => setStatusFilter(e.target.value)}
               className="h-10 rounded-full border border-border bg-background px-4 text-sm outline-none focus:border-primary">

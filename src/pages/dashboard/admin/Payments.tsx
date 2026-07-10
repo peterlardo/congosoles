@@ -8,6 +8,8 @@ export default function AdminPayments() {
   const [payments, setPayments] = useState<Payment[]>([])
   const [loading, setLoading] = useState(true)
   const [selected, setSelected] = useState<Payment | null>(null)
+  const [search, setSearch] = useState("")
+  const [statusFilter, setStatusFilter] = useState<string>("all")
   const [page, setPage] = useState(1)
   const pageSize = 6
 
@@ -29,15 +31,36 @@ export default function AdminPayments() {
     setSelected(null)
   }
 
-  const paged = payments.slice((page - 1) * pageSize, page * pageSize)
+  const filteredPayments = payments.filter(p => {
+    const matchesSearch = !search || p.user_email?.toLowerCase().includes(search.toLowerCase())
+    const matchesStatus = statusFilter === "all" || p.status === statusFilter
+    return matchesSearch && matchesStatus
+  })
+  const paged = filteredPayments.slice((page - 1) * pageSize, page * pageSize)
 
-  useEffect(() => setPage(1), [payments.length])
+  useEffect(() => setPage(1), [search, statusFilter])
 
   return (
     <div className="space-y-6">
       <div>
         <h1 className="font-display text-2xl font-bold text-ink">Paiements</h1>
         <p className="mt-1 text-sm text-ink-soft">{payments.length} transactions · {total.toLocaleString("fr-FR")} XAF encaissés</p>
+      </div>
+
+      <div className="flex items-center gap-3">
+        <div className="relative flex-1">
+          <Search className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
+          <input placeholder="Rechercher un paiement..." value={search} onChange={e => setSearch(e.target.value)}
+            className="h-10 w-full rounded-full border border-border bg-background pl-9 pr-4 text-sm outline-none focus:border-primary" />
+        </div>
+        <select value={statusFilter} onChange={e => setStatusFilter(e.target.value)}
+          className="h-10 rounded-full border border-border bg-background px-4 text-sm outline-none focus:border-primary">
+          <option value="all">Tous les statuts</option>
+          <option value="completed">Complété</option>
+          <option value="pending">En attente</option>
+          <option value="failed">Échoué</option>
+          <option value="refunded">Remboursé</option>
+        </select>
       </div>
 
       {loading ? (
@@ -68,8 +91,11 @@ export default function AdminPayments() {
               </div>
             </div>
           ))}
-          {payments.length > pageSize && (
-            <Pagination current={page} total={payments.length} pageSize={pageSize} onChange={setPage} />
+          {filteredPayments.length === 0 && (
+            <p className="py-8 text-center text-sm text-muted-foreground">Aucun paiement trouvé.</p>
+          )}
+          {filteredPayments.length > pageSize && (
+            <Pagination current={page} total={filteredPayments.length} pageSize={pageSize} onChange={setPage} />
           )}
         </div>
       )}

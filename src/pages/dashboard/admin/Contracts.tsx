@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react"
 import { supabase } from "@/lib/supabase"
 import { fetchContractTemplates, saveContractTemplate, deleteContractTemplate, fetchContracts, saveContract, deleteContract } from "@/lib/admin"
-import { FileText, Plus, Edit3, Trash2, Save, X, Check, Download, Eye, FileSignature } from "lucide-react"
+import { FileText, Plus, Edit3, Trash2, Save, X, Check, Download, Eye, FileSignature, Search } from "lucide-react"
 import type { ContractTemplate, Contract } from "@/types/admin"
 import Pagination from "@/components/Pagination"
 
@@ -18,6 +18,9 @@ export default function AdminContracts() {
   const [page, setPage] = useState(1)
   const [page2, setPage2] = useState(1)
   const pageSize = 6
+  const [templateSearch, setTemplateSearch] = useState("")
+  const [contractSearch, setContractSearch] = useState("")
+  const [contractStatusFilter, setContractStatusFilter] = useState<"all" | "draft" | "sent" | "signed" | "expired" | "cancelled">("all")
 
   useEffect(() => {
     Promise.all([fetchContractTemplates(), fetchContracts()]).then(([t, c]) => {
@@ -25,10 +28,22 @@ export default function AdminContracts() {
     })
   }, [])
 
-  useEffect(() => setPage(1), [tab])
+  useEffect(() => { setPage(1); setTemplateSearch(""); setContractSearch(""); setContractStatusFilter("all") }, [tab])
 
-  const pagedTemplates = templates.slice((page - 1) * pageSize, page * pageSize)
-  const pagedContracts = contracts.slice((page2 - 1) * pageSize, page2 * pageSize)
+  const filteredTemplates = templates.filter(tpl => {
+    const q = templateSearch.toLowerCase()
+    return !q || tpl.title.toLowerCase().includes(q) || tpl.description?.toLowerCase().includes(q)
+  })
+
+  const filteredContracts = contracts.filter(c => {
+    const q = contractSearch.toLowerCase()
+    const matchesSearch = !q || c.title.toLowerCase().includes(q) || (c.store_name || "").toLowerCase().includes(q)
+    const matchesStatus = contractStatusFilter === "all" || c.status === contractStatusFilter
+    return matchesSearch && matchesStatus
+  })
+
+  const pagedTemplates = filteredTemplates.slice((page - 1) * pageSize, page * pageSize)
+  const pagedContracts = filteredContracts.slice((page2 - 1) * pageSize, page2 * pageSize)
 
   const handleSaveTemplate = async () => {
     if (!editingTemplate?.title || !editingTemplate?.content) return
@@ -123,7 +138,13 @@ export default function AdminContracts() {
         <div className="space-y-3">{[1,2,3].map(i => <div key={i} className="h-20 animate-pulse rounded-2xl bg-muted" />)}</div>
       ) : tab === "templates" ? (
         <>
-          <div className="flex justify-end">
+          <div className="flex items-center justify-between">
+            <div className="relative max-w-xs flex-1">
+              <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
+              <input value={templateSearch} onChange={e => { setTemplateSearch(e.target.value); setPage(1) }}
+                placeholder="Rechercher un modèle..."
+                className="h-10 w-full rounded-full border border-border bg-background pl-9 pr-4 text-sm outline-none focus:border-primary" />
+            </div>
             <button onClick={() => setEditingTemplate({ title: "", description: "", content: "", category: "general", is_active: true })}
               className="inline-flex items-center gap-2 rounded-full gradient-primary px-5 py-2.5 text-sm font-bold text-primary-foreground">
               <Plus className="h-4 w-4" /> Nouveau modèle
@@ -163,10 +184,26 @@ export default function AdminContracts() {
               </div>
             ))}
           </div>
-          <Pagination current={page} total={templates.length} pageSize={pageSize} onChange={setPage} />
+          <Pagination current={page} total={filteredTemplates.length} pageSize={pageSize} onChange={setPage} />
         </>
       ) : (
         <>
+          <div className="flex items-center gap-3">
+            <div className="relative max-w-xs flex-1">
+              <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
+              <input value={contractSearch} onChange={e => { setContractSearch(e.target.value); setPage2(1) }}
+                placeholder="Rechercher un contrat..."
+                className="h-10 w-full rounded-full border border-border bg-background pl-9 pr-4 text-sm outline-none focus:border-primary" />
+            </div>
+            <div className="flex gap-1.5 rounded-full border border-border bg-card p-1">
+              {(["all", "draft", "sent", "signed", "expired", "cancelled"] as const).map(s => (
+                <button key={s} onClick={() => { setContractStatusFilter(s); setPage2(1) }}
+                  className={`rounded-full px-3 py-1 text-xs font-semibold transition ${contractStatusFilter === s ? "bg-primary text-primary-foreground" : "text-ink-soft hover:text-ink"}`}>
+                  {s === "all" ? "Tous" : s.charAt(0).toUpperCase() + s.slice(1)}
+                </button>
+              ))}
+            </div>
+          </div>
           <div className="space-y-2">
             {pagedContracts.map(contract => (
               <div key={contract.id} className="flex items-center gap-4 rounded-2xl border border-border/60 bg-card p-4 shadow-card">
@@ -201,8 +238,8 @@ export default function AdminContracts() {
                 </div>
               </div>
             ))}
-            <Pagination current={page2} total={contracts.length} pageSize={pageSize} onChange={setPage2} />
-            {contracts.length === 0 && (
+            <Pagination current={page2} total={filteredContracts.length} pageSize={pageSize} onChange={setPage2} />
+            {filteredContracts.length === 0 && (
               <div className="rounded-2xl border border-border/60 bg-card p-12 text-center">
                 <FileText className="mx-auto h-8 w-8 text-muted-foreground" />
                 <p className="mt-2 text-sm text-ink-soft">Aucun contrat généré</p>

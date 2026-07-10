@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react"
 import { fetchCMSPages, saveCMSPage, deleteCMSPage } from "@/lib/admin"
-import { FileText, Plus, Edit3, Trash2, Save, X } from "lucide-react"
+import { FileText, Plus, Edit3, Trash2, Save, X, Search } from "lucide-react"
 import type { CMSPage } from "@/types/admin"
 
 export default function AdminCMSPages() {
@@ -8,10 +8,20 @@ export default function AdminCMSPages() {
   const [loading, setLoading] = useState(true)
   const [editing, setEditing] = useState<Partial<CMSPage> | null>(null)
   const [deleting, setDeleting] = useState<CMSPage | null>(null)
+  const [search, setSearch] = useState("")
+  const [statusFilter, setStatusFilter] = useState<"all" | "published" | "draft">("all")
 
   useEffect(() => {
     fetchCMSPages().then(data => { setPages(data); setLoading(false) })
   }, [])
+
+  const filteredPages = pages.filter(page => {
+    const matchesSearch = page.title.toLowerCase().includes(search.toLowerCase())
+    const matchesStatus = statusFilter === "all"
+      || (statusFilter === "published" && page.is_published)
+      || (statusFilter === "draft" && !page.is_published)
+    return matchesSearch && matchesStatus
+  })
 
   const handleSave = async () => {
     if (!editing) return
@@ -39,18 +49,35 @@ export default function AdminCMSPages() {
       <div className="flex items-center justify-between">
         <div>
           <h1 className="font-display text-2xl font-bold text-ink">Pages CMS</h1>
-          <p className="mt-1 text-sm text-ink-soft">{pages.length} pages</p>
+          <p className="mt-1 text-sm text-ink-soft">{filteredPages.length} pages</p>
         </div>
         <button onClick={startCreate} className="flex items-center gap-2 rounded-full gradient-primary px-5 py-2.5 text-sm font-bold text-primary-foreground">
           <Plus className="h-4 w-4" /> Nouvelle page
         </button>
       </div>
 
+      <div className="flex items-center gap-3">
+        <div className="relative flex-1 max-w-xs">
+          <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
+          <input value={search} onChange={e => setSearch(e.target.value)}
+            placeholder="Rechercher une page..."
+            className="h-10 w-full rounded-full border border-border bg-background pl-9 pr-4 text-sm outline-none focus:border-primary" />
+        </div>
+        <div className="flex gap-1.5 rounded-full border border-border bg-card p-1">
+          {(["all", "published", "draft"] as const).map(s => (
+            <button key={s} onClick={() => setStatusFilter(s)}
+              className={`rounded-full px-3 py-1 text-xs font-semibold transition ${statusFilter === s ? "bg-primary text-primary-foreground" : "text-ink-soft hover:text-ink"}`}>
+              {s === "all" ? "Toutes" : s === "published" ? "Publiées" : "Brouillons"}
+            </button>
+          ))}
+        </div>
+      </div>
+
       {loading ? (
         <div className="space-y-3">{[1,2,3].map(i => <div key={i} className="h-16 animate-pulse rounded-2xl bg-muted" />)}</div>
       ) : (
         <div className="space-y-2">
-          {pages.map(page => (
+          {filteredPages.map(page => (
             <div key={page.id} className="flex items-center gap-4 rounded-2xl border border-border/60 bg-card p-4 shadow-card">
               <div className="grid h-10 w-10 shrink-0 place-items-center rounded-xl bg-primary/10 text-primary">
                 <FileText className="h-5 w-5" />

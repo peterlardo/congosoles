@@ -9,19 +9,50 @@ export default function AdminActivityLog() {
   const [loading, setLoading] = useState(true)
   const [page, setPage] = useState(1)
   const pageSize = 6
-  const paged = logs.slice((page - 1) * pageSize, page * pageSize)
+  const [search, setSearch] = useState("")
+  const [actionFilter, setActionFilter] = useState("all")
+  const filtered = logs.filter(log => {
+    if (search) {
+      const q = search.toLowerCase()
+      if (!log.action.toLowerCase().includes(q) &&
+          !(log.user_name || "").toLowerCase().includes(q) &&
+          !(log.user_email || "").toLowerCase().includes(q) &&
+          !log.entity_type.toLowerCase().includes(q)) return false
+    }
+    if (actionFilter !== "all" && !log.action.toLowerCase().includes(actionFilter)) return false
+    return true
+  })
+  const paged = filtered.slice((page - 1) * pageSize, page * pageSize)
 
   useEffect(() => {
     fetchActivityLogs(200).then(data => { setLogs(data); setLoading(false) })
   }, [])
 
   useEffect(() => setPage(1), [logs])
+  useEffect(() => setPage(1), [search, actionFilter])
 
   return (
     <div className="space-y-6">
       <div>
         <h1 className="font-display text-2xl font-bold text-ink">Journal d'activité</h1>
         <p className="mt-1 text-sm text-ink-soft">Traçabilité de toutes les actions sensibles</p>
+      </div>
+
+      <div className="flex gap-3">
+        <div className="relative flex-1">
+          <Search className="absolute left-4 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
+          <input value={search} onChange={e => setSearch(e.target.value)}
+            placeholder="Rechercher une action..."
+            className="h-10 w-full rounded-full border border-border bg-background pl-10 pr-4 text-sm outline-none focus:border-primary" />
+        </div>
+        <select value={actionFilter} onChange={e => setActionFilter(e.target.value)}
+          className="h-10 rounded-full border border-border bg-background px-4 text-sm outline-none focus:border-primary">
+          <option value="all">Toutes les actions</option>
+          <option value="update">Mise à jour</option>
+          <option value="create">Création</option>
+          <option value="delete">Suppression</option>
+          <option value="toggle">Activation</option>
+        </select>
       </div>
 
       {loading ? (
@@ -46,8 +77,8 @@ export default function AdminActivityLog() {
               </div>
             </div>
           ))}
-          <Pagination current={page} total={logs.length} pageSize={pageSize} onChange={setPage} />
-          {logs.length === 0 && (
+          <Pagination current={page} total={filtered.length} pageSize={pageSize} onChange={setPage} />
+          {filtered.length === 0 && (
             <div className="rounded-2xl border border-border/60 bg-card p-12 text-center">
               <History className="mx-auto h-8 w-8 text-muted-foreground" />
               <p className="mt-2 text-sm text-ink-soft">Aucune activité enregistrée</p>
