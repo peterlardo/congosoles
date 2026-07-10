@@ -6,7 +6,9 @@ export function Footer() {
         <div className="grid gap-12 lg:grid-cols-[1.4fr_repeat(3,1fr)]">
           <div>
             <div className="flex items-center gap-2">
-              <img src="/assets/logo.png" alt="Congo Soldes" className="h-20 w-20 object-contain" />
+              <div className="h-32 w-32 overflow-hidden rounded-full" style={{ mixBlendMode: 'multiply' }}>
+                <img src="/assets/logo.png" alt="Congo Soldes" className="h-full w-full object-contain" />
+              </div>
               <div>
                 <div className="font-display text-xl font-bold text-ink">Congo<span className="text-primary">Soldes</span></div>
                 <div className="text-xs text-muted-foreground">La qualité au petit prix</div>
