@@ -1,6 +1,7 @@
 import { useParams, Link } from "react-router-dom"
 import { allProducts, stores } from "@/lib/data"
 import { MapPin, BadgeCheck, ArrowLeft } from "lucide-react"
+import { StoreLogo } from "@/components/StoreLogo"
 
 const storeMeta: Record<string, { tagline: string; description: string; gradient: string; accent: string }> = {
   "Casino Brazza": {
@@ -102,14 +103,16 @@ export default function StoreDetail() {
           </Link>
 
           <div className="flex flex-col gap-6 sm:flex-row sm:items-end sm:justify-between">
-            <div>
-              <div className="flex items-center gap-2 mb-2">
-                <span className="text-4xl">{store?.category || "🏬"}</span>
-                <h1 className="font-display text-4xl font-bold text-white sm:text-5xl lg:text-6xl">{decodedName}</h1>
-                {store && store.id !== 4 && <BadgeCheck className="h-7 w-7 text-white/80" />}
+            <div className="flex items-start gap-5">
+              {store && <StoreLogo store={store} size="xl" />}
+              <div>
+                <div className="flex items-center gap-2 mb-2">
+                  <h1 className="font-display text-4xl font-bold text-white sm:text-5xl lg:text-6xl">{decodedName}</h1>
+                  {store && store.id !== 4 && <BadgeCheck className="h-7 w-7 text-white/80" />}
+                </div>
+                <p className="mt-1 text-lg font-medium text-white/80">{meta.tagline}</p>
+                <p className="mt-2 max-w-lg text-sm leading-relaxed text-white/60">{meta.description}</p>
               </div>
-              <p className="mt-1 text-lg font-medium text-white/80">{meta.tagline}</p>
-              <p className="mt-2 max-w-lg text-sm leading-relaxed text-white/60">{meta.description}</p>
             </div>
 
             <div className="flex shrink-0 gap-4">

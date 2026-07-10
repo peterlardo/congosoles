@@ -1,6 +1,7 @@
 import { Link } from "react-router-dom"
 import { stores } from "@/lib/data"
 import { BadgeCheck } from "lucide-react"
+import { StoreLogo } from "@/components/StoreLogo"
 
 export function StoresSection() {
   return (
@@ -18,7 +19,7 @@ export function StoresSection() {
               key={store.id}
               className="flex items-center gap-4 rounded-2xl border border-border/60 bg-card p-4 shadow-card transition hover:shadow-lift"
             >
-              <div className="grid h-14 w-14 place-items-center rounded-2xl bg-accent text-2xl">{store.category}</div>
+              <StoreLogo store={store} />
               <div className="min-w-0 flex-1">
                 <div className="flex items-center gap-1.5">
                   <div className="truncate font-semibold text-ink">{store.name}</div>

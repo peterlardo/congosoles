@@ -29,6 +29,9 @@ export interface Store {
   location: string
   activePromos: number
   image: string
+  logoInitial: string
+  logoColor: string
+  logoGradient: string
 }
 
 export const categories: Category[] = [
@@ -606,16 +609,16 @@ export const todayProducts: Product[] = [
 export const allProducts: Product[] = [...flashProducts, ...todayProducts]
 
 export const stores: Store[] = [
-  { id: 1, name: "Casino Brazza", category: "🏬", location: "Brazzaville", activePromos: 42, image: "https://images.unsplash.com/photo-1586201375761-83865001e31c?w=600&q=70&auto=format" },
-  { id: 2, name: "SportZone", category: "⚽", location: "Pointe-Noire", activePromos: 18, image: "https://images.unsplash.com/photo-1542291026-7eec264c27ff?w=600&q=70&auto=format" },
-  { id: 3, name: "TechCongo", category: "📱", location: "Brazzaville", activePromos: 27, image: "https://images.unsplash.com/photo-1511707171634-5f897ff02aa9?w=600&q=70&auto=format" },
-  { id: 4, name: "Nzinga Store", category: "👗", location: "Brazzaville", activePromos: 12, image: "https://images.unsplash.com/photo-1490481651871-ab68de25d43d?w=600&q=70&auto=format" },
-  { id: 5, name: "MaxiElec", category: "🔌", location: "Pointe-Noire", activePromos: 33, image: "https://images.unsplash.com/photo-1593359677879-a4bb92f829d1?w=600&q=70&auto=format" },
-  { id: 6, name: "Glow Cosmetics", category: "💄", location: "Brazzaville", activePromos: 21, image: "https://images.unsplash.com/photo-1522337360788-8b13dee7a37e?w=600&q=70&auto=format" },
-  { id: 7, name: "Super U Congo", category: "🛒", location: "Brazzaville", activePromos: 56, image: "https://images.unsplash.com/photo-1604719312566-8912e9227c6a?w=600&q=70&auto=format" },
-  { id: 8, name: "MaisonPlus", category: "🛋️", location: "Brazzaville", activePromos: 15, image: "https://images.unsplash.com/photo-1555041469-a586c61ea9bc?w=600&q=70&auto=format" },
-  { id: 9, name: "Fashion Hub", category: "👠", location: "Pointe-Noire", activePromos: 24, image: "https://images.unsplash.com/photo-1556905055-8f358a7a47b2?w=600&q=70&auto=format" },
-  { id: 10, name: "Pharma Congo", category: "💊", location: "Brazzaville", activePromos: 31, image: "https://images.unsplash.com/photo-1584308666744-24d5c474f2ae?w=600&q=70&auto=format" },
-  { id: 11, name: "NSIA Brazza", category: "🛡️", location: "Brazzaville", activePromos: 8, image: "https://images.unsplash.com/photo-1449965408869-eaa3f722e40d?w=600&q=70&auto=format" },
-  { id: 12, name: "Chez Mama Poto-Poto", category: "🍽️", location: "Brazzaville", activePromos: 9, image: "https://images.unsplash.com/photo-1598515214211-89d3c73ae83b?w=600&q=70&auto=format" },
+  { id: 1, name: "Casino Brazza", category: "🏬", location: "Brazzaville", activePromos: 42, image: "https://images.unsplash.com/photo-1586201375761-83865001e31c?w=600&q=70&auto=format", logoInitial: "CB", logoColor: "text-white", logoGradient: "bg-gradient-to-br from-red-600 to-red-500" },
+  { id: 2, name: "SportZone", category: "⚽", location: "Pointe-Noire", activePromos: 18, image: "https://images.unsplash.com/photo-1542291026-7eec264c27ff?w=600&q=70&auto=format", logoInitial: "SZ", logoColor: "text-white", logoGradient: "bg-gradient-to-br from-emerald-600 to-teal-500" },
+  { id: 3, name: "TechCongo", category: "📱", location: "Brazzaville", activePromos: 27, image: "https://images.unsplash.com/photo-1511707171634-5f897ff02aa9?w=600&q=70&auto=format", logoInitial: "TC", logoColor: "text-white", logoGradient: "bg-gradient-to-br from-blue-600 to-cyan-500" },
+  { id: 4, name: "Nzinga Store", category: "👗", location: "Brazzaville", activePromos: 12, image: "https://images.unsplash.com/photo-1490481651871-ab68de25d43d?w=600&q=70&auto=format", logoInitial: "NS", logoColor: "text-white", logoGradient: "bg-gradient-to-br from-fuchsia-600 to-pink-500" },
+  { id: 5, name: "MaxiElec", category: "🔌", location: "Pointe-Noire", activePromos: 33, image: "https://images.unsplash.com/photo-1593359677879-a4bb92f829d1?w=600&q=70&auto=format", logoInitial: "ME", logoColor: "text-white", logoGradient: "bg-gradient-to-br from-slate-600 to-zinc-500" },
+  { id: 6, name: "Glow Cosmetics", category: "💄", location: "Brazzaville", activePromos: 21, image: "https://images.unsplash.com/photo-1522337360788-8b13dee7a37e?w=600&q=70&auto=format", logoInitial: "GC", logoColor: "text-white", logoGradient: "bg-gradient-to-br from-rose-600 to-pink-500" },
+  { id: 7, name: "Super U Congo", category: "🛒", location: "Brazzaville", activePromos: 56, image: "https://images.unsplash.com/photo-1604719312566-8912e9227c6a?w=600&q=70&auto=format", logoInitial: "SU", logoColor: "text-white", logoGradient: "bg-gradient-to-br from-indigo-600 to-violet-500" },
+  { id: 8, name: "MaisonPlus", category: "🛋️", location: "Brazzaville", activePromos: 15, image: "https://images.unsplash.com/photo-1555041469-a586c61ea9bc?w=600&q=70&auto=format", logoInitial: "MP", logoColor: "text-white", logoGradient: "bg-gradient-to-br from-amber-600 to-yellow-500" },
+  { id: 9, name: "Fashion Hub", category: "👠", location: "Pointe-Noire", activePromos: 24, image: "https://images.unsplash.com/photo-1556905055-8f358a7a47b2?w=600&q=70&auto=format", logoInitial: "FH", logoColor: "text-white", logoGradient: "bg-gradient-to-br from-violet-600 to-indigo-500" },
+  { id: 10, name: "Pharma Congo", category: "💊", location: "Brazzaville", activePromos: 31, image: "https://images.unsplash.com/photo-1584308666744-24d5c474f2ae?w=600&q=70&auto=format", logoInitial: "PC", logoColor: "text-white", logoGradient: "bg-gradient-to-br from-teal-600 to-green-500" },
+  { id: 11, name: "NSIA Brazza", category: "🛡️", location: "Brazzaville", activePromos: 8, image: "https://images.unsplash.com/photo-1449965408869-eaa3f722e40d?w=600&q=70&auto=format", logoInitial: "NS", logoColor: "text-white", logoGradient: "bg-gradient-to-br from-slate-700 to-blue-800" },
+  { id: 12, name: "Chez Mama Poto-Poto", category: "🍽️", location: "Brazzaville", activePromos: 9, image: "https://images.unsplash.com/photo-1598515214211-89d3c73ae83b?w=600&q=70&auto=format", logoInitial: "CM", logoColor: "text-white", logoGradient: "bg-gradient-to-br from-orange-600 to-amber-500" },
 ]
