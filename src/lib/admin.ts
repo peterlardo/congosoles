@@ -42,6 +42,26 @@ export async function deleteUser(userId: string) {
   return { error }
 }
 
+export async function updateUser(userId: string, data: { email?: string; name?: string; role?: string; avatar_url?: string }) {
+  const results: { authError?: any; profileError?: any } = {}
+  if (data.email) {
+    const { error } = await supabase.auth.admin.updateUserById(userId, { email: data.email })
+    if (error) results.authError = error
+  }
+  const profileUpdate: Record<string, any> = {}
+  if (data.name !== undefined) profileUpdate.name = data.name
+  if (data.role !== undefined) profileUpdate.role = data.role
+  if (data.avatar_url !== undefined) profileUpdate.avatar_url = data.avatar_url
+  if (Object.keys(profileUpdate).length > 0) {
+    const { error } = await supabase.from("profiles").update(profileUpdate).eq("id", userId)
+    if (error) results.profileError = error
+  }
+  if (!results.authError && !results.profileError) {
+    await logActivity("update_user", "user", userId, data)
+  }
+  return results
+}
+
 // Stores
 export async function fetchAdminStores(status?: string, search?: string): Promise<AdminStore[]> {
   let query = supabase.from("stores").select("*")

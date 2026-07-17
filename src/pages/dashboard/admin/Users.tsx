@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react"
 import { supabase } from "@/lib/supabase"
-import { fetchUsers, updateUserRole, deleteUser } from "@/lib/admin"
-import { Search, User, Plus, Trash2, X, Check } from "lucide-react"
+import { fetchUsers, updateUserRole, updateUser, deleteUser } from "@/lib/admin"
+import { Search, User, Plus, Trash2, X, Edit3, Save, Loader2 } from "lucide-react"
 import type { AdminProfile } from "@/types/admin"
 import Pagination from "@/components/Pagination"
 
@@ -11,7 +11,8 @@ export default function AdminUsers() {
   const [users, setUsers] = useState<AdminProfile[]>([])
   const [loading, setLoading] = useState(true)
   const [search, setSearch] = useState("")
-  const [editingRole, setEditingRole] = useState<string | null>(null)
+  const [editing, setEditing] = useState<AdminProfile | null>(null)
+  const [saving, setSaving] = useState(false)
   const [showCreate, setShowCreate] = useState(false)
   const [deleteConfirm, setDeleteConfirm] = useState<string | null>(null)
   const [newUser, setNewUser] = useState({ email: "", password: "", name: "", role: "client" })
@@ -34,7 +35,21 @@ export default function AdminUsers() {
   const handleRoleChange = async (userId: string, role: string) => {
     await updateUserRole(userId, role)
     setUsers(prev => prev.map(u => u.id === userId ? { ...u, role: role as any } : u))
-    setEditingRole(null)
+  }
+
+  const handleSaveEdit = async () => {
+    if (!editing) return
+    setSaving(true)
+    const result = await updateUser(editing.id, {
+      email: editing.email,
+      name: editing.name,
+      role: editing.role,
+    })
+    if (result.authError) { alert("Erreur email : " + result.authError.message); setSaving(false); return }
+    if (result.profileError) { alert("Erreur profil : " + result.profileError.message); setSaving(false); return }
+    setUsers(prev => prev.map(u => u.id === editing.id ? editing : u))
+    setSaving(false)
+    setEditing(null)
   }
 
   const handleCreate = async () => {
@@ -84,7 +99,8 @@ export default function AdminUsers() {
       ) : (
         <div className="space-y-2">
           {paged.map(user => (
-            <div key={user.id} className="flex items-center gap-4 rounded-2xl border border-border/60 bg-card p-4 shadow-card">
+            <div key={user.id} onClick={() => setEditing(user)}
+              className="flex cursor-pointer items-center gap-4 rounded-2xl border border-border/60 bg-card p-4 shadow-card transition hover:-translate-y-0.5 hover:shadow-lift">
               <div className="grid h-10 w-10 shrink-0 place-items-center rounded-full bg-primary/10 text-primary text-sm font-bold">
                 {user.name?.charAt(0).toUpperCase() || "?"}
               </div>
@@ -101,26 +117,7 @@ export default function AdminUsers() {
                 </div>
                 <div className="text-xs text-muted-foreground">{user.email}</div>
               </div>
-              <div className="relative">
-                {editingRole === user.id ? (
-                  <div className="flex gap-1">
-                    <select value={user.role} onChange={e => handleRoleChange(user.id, e.target.value)}
-                      className="rounded-lg border border-border bg-background px-2 py-1 text-xs outline-none">
-                      {roles.map(r => <option key={r} value={r}>{r}</option>)}
-                    </select>
-                    <button onClick={() => setEditingRole(null)} className="p-1 text-muted-foreground hover:text-ink"><X className="h-4 w-4" /></button>
-                  </div>
-                ) : (
-                  <div className="flex gap-1">
-                    <button onClick={() => setEditingRole(user.id)} className="rounded-lg p-2 text-muted-foreground transition hover:bg-muted hover:text-ink" title="Changer rôle">
-                      <Check className="h-4 w-4" />
-                    </button>
-                    <button onClick={() => setDeleteConfirm(user.id)} className="rounded-lg p-2 text-red-400 transition hover:bg-red-500/10 hover:text-red-500" title="Supprimer">
-                      <Trash2 className="h-4 w-4" />
-                    </button>
-                  </div>
-                )}
-              </div>
+              <Edit3 className="h-4 w-4 shrink-0 text-muted-foreground opacity-0 transition group-hover:opacity-100" />
             </div>
           ))}
           <Pagination current={page} total={filtered.length} pageSize={pageSize} onChange={setPage} />
@@ -130,6 +127,48 @@ export default function AdminUsers() {
               <p className="mt-2 text-sm text-ink-soft">Aucun utilisateur trouvé</p>
             </div>
           )}
+        </div>
+      )}
+
+      {editing && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40" onClick={() => setEditing(null)}>
+          <div className="w-full max-w-md rounded-3xl bg-card p-6 shadow-xl" onClick={e => e.stopPropagation()}>
+            <h3 className="font-display text-lg font-bold text-ink">Modifier l'utilisateur</h3>
+            <div className="mt-4 space-y-3">
+              <div>
+                <label className="mb-1 block text-xs font-bold uppercase tracking-widest text-muted-foreground">Nom</label>
+                <input value={editing.name || ""} onChange={e => setEditing({ ...editing, name: e.target.value })}
+                  placeholder="Nom complet" className="h-10 w-full rounded-full border border-border bg-background px-4 text-sm outline-none focus:border-primary" />
+              </div>
+              <div>
+                <label className="mb-1 block text-xs font-bold uppercase tracking-widest text-muted-foreground">Email</label>
+                <input value={editing.email || ""} onChange={e => setEditing({ ...editing, email: e.target.value })}
+                  placeholder="Email" type="email" className="h-10 w-full rounded-full border border-border bg-background px-4 text-sm outline-none focus:border-primary" />
+              </div>
+              <div>
+                <label className="mb-1 block text-xs font-bold uppercase tracking-widest text-muted-foreground">Rôle</label>
+                <select value={editing.role} onChange={e => setEditing({ ...editing, role: e.target.value as any })}
+                  className="h-10 w-full rounded-full border border-border bg-background px-4 text-sm outline-none focus:border-primary">
+                  {roles.map(r => <option key={r} value={r}>{r}</option>)}
+                </select>
+              </div>
+              <div className="flex gap-2 pt-2">
+                <button onClick={handleSaveEdit} disabled={saving}
+                  className="flex items-center gap-2 rounded-full gradient-primary px-6 py-2.5 text-sm font-bold text-primary-foreground disabled:opacity-50">
+                  {saving ? <Loader2 className="h-4 w-4 animate-spin" /> : <Save className="h-4 w-4" />}
+                  {saving ? "Enregistrement..." : "Enregistrer"}
+                </button>
+                <button onClick={() => setEditing(null)}
+                  className="flex items-center gap-2 rounded-full border border-border px-6 py-2.5 text-sm font-semibold text-ink">
+                  <X className="h-4 w-4" /> Annuler
+                </button>
+                <button onClick={() => { setDeleteConfirm(editing.id); setEditing(null) }}
+                  className="ml-auto flex items-center gap-2 rounded-full border border-red-500/30 px-4 py-2.5 text-sm font-semibold text-red-500">
+                  <Trash2 className="h-4 w-4" /> Supprimer
+                </button>
+              </div>
+            </div>
+          </div>
         </div>
       )}
 
