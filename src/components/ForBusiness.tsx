@@ -27,9 +27,9 @@ export function ForBusiness() {
           </div>
           <div className="grid grid-cols-2 gap-3">
             {stats.map((stat) => (
-              <div key={stat.label} className="rounded-2xl bg-background/95 p-4">
-                <div className="font-display text-2xl font-bold text-ink">{stat.value}</div>
-                <div className="text-xs text-muted-foreground">{stat.label}</div>
+              <div key={stat.label} className="rounded-2xl bg-white/10 p-4">
+                <div className="font-display text-2xl font-bold text-white">{stat.value}</div>
+                <div className="text-xs text-white/70">{stat.label}</div>
               </div>
             ))}
           </div>

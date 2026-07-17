@@ -5,28 +5,35 @@ import { ArrowRight, ChevronLeft, ChevronRight } from "lucide-react"
 import { useEffect, useState } from "react"
 
 const allValue = "Toutes"
-const perPage = 12
+const perPage = 8
 
 export function TodayPromos() {
   const [allItems, setAllItems] = useState<PromoItem[]>([])
-  const [city, setCity] = useState(allValue)
+  const [searchName, setSearchName] = useState("")
   const [category, setCategory] = useState(allValue)
-  const [shop, setShop] = useState(allValue)
+  const [discount, setDiscount] = useState(allValue)
   const [page, setPage] = useState(1)
 
   useEffect(() => {
     fetchActivePromotions().then(setAllItems)
   }, [])
 
-  const cities = [allValue, ...Array.from(new Set(allItems.map(p => p.location)))]
   const categories = [allValue, ...Array.from(new Set(allItems.map(p => p.category)))]
-  const shops = [allValue, ...Array.from(new Set(allItems.map(p => p.store)))]
+  const discounts = [allValue, "-10%", "-20%", "-30%", "-40%", "-50%", "+50%"]
 
   const filteredProducts = allItems.filter((product) => {
+    const d = product.discountPercent
+    const matchesDiscount = discount === allValue ||
+      (discount === "-10%" && d >= 0 && d < 20) ||
+      (discount === "-20%" && d >= 20 && d < 30) ||
+      (discount === "-30%" && d >= 30 && d < 40) ||
+      (discount === "-40%" && d >= 40 && d < 50) ||
+      (discount === "-50%" && d >= 50 && d < 60) ||
+      (discount === "+50%" && d >= 60)
     return (
-      (city === allValue || product.location === city) &&
+      (!searchName || product.store.toLowerCase().includes(searchName.toLowerCase())) &&
       (category === allValue || product.category === category) &&
-      (shop === allValue || product.store === shop)
+      matchesDiscount
     )
   })
 
@@ -49,19 +56,17 @@ export function TodayPromos() {
           </div>
           <Link to="/promos" className="inline-flex items-center gap-2 rounded-full border border-border px-4 py-2 text-sm font-semibold text-ink transition hover:border-primary hover:text-primary">Tout voir <ArrowRight className="h-4 w-4" /></Link>
         </div>
-        <div className="mt-6 rounded-3xl bg-gradient-to-br from-orange-500 via-orange-500 to-red-500 p-4 shadow-lg sm:p-5">
+          <div className="mt-6 rounded-3xl bg-gradient-to-br from-orange-500 via-orange-500 to-red-500 p-4 shadow-lg sm:p-5">
           <div className="grid gap-3 sm:grid-cols-3">
             <label className="flex flex-col gap-1.5">
-              <span className="px-1 text-[11px] font-bold uppercase tracking-widest text-white/70">Ville</span>
-              <select
-                value={city}
-                onChange={(e) => handleFilterChange(setCity)(e.target.value)}
+              <span className="px-1 text-[11px] font-bold uppercase tracking-widest text-white/70">Nom de la boutique</span>
+              <input
+                type="text"
+                value={searchName}
+                onChange={(e) => { setSearchName(e.target.value); setPage(1) }}
+                placeholder="Rechercher..."
                 className="h-11 rounded-full border border-white/30 bg-white px-4 text-sm font-semibold text-ink outline-none transition focus:ring-2 focus:ring-white/50"
-              >
-                {cities.map((option) => (
-                  <option key={option} value={option}>{option}</option>
-                ))}
-              </select>
+              />
             </label>
             <label className="flex flex-col gap-1.5">
               <span className="px-1 text-[11px] font-bold uppercase tracking-widest text-white/70">Catégorie</span>
@@ -76,14 +81,14 @@ export function TodayPromos() {
               </select>
             </label>
             <label className="flex flex-col gap-1.5">
-              <span className="px-1 text-[11px] font-bold uppercase tracking-widest text-white/70">Boutique</span>
+              <span className="px-1 text-[11px] font-bold uppercase tracking-widest text-white/70">Réduction</span>
               <select
-                value={shop}
-                onChange={(e) => handleFilterChange(setShop)(e.target.value)}
+                value={discount}
+                onChange={(e) => handleFilterChange(setDiscount)(e.target.value)}
                 className="h-11 rounded-full border border-white/30 bg-white px-4 text-sm font-semibold text-ink outline-none transition focus:ring-2 focus:ring-white/50"
               >
-                {shops.map((option) => (
-                  <option key={option} value={option} className="text-ink">{option}</option>
+                {discounts.map((option) => (
+                  <option key={option} value={option}>{option}</option>
                 ))}
               </select>
             </label>
@@ -100,7 +105,7 @@ export function TodayPromos() {
         {filteredProducts.length === 0 && (
           <div className="mt-8 rounded-3xl border border-border/60 bg-card p-8 text-center shadow-card">
             <div className="font-display text-2xl font-bold text-ink">Aucune promotion trouvée</div>
-            <p className="mt-2 text-sm text-ink-soft">Essayez une autre ville, catégorie ou boutique.</p>
+            <p className="mt-2 text-sm text-ink-soft">Essayez une autre catégorie ou boutique.</p>
           </div>
         )}
         {totalPages > 1 && (
@@ -108,29 +113,17 @@ export function TodayPromos() {
             <button
               onClick={() => setPage((p) => Math.max(1, p - 1))}
               disabled={page === 1}
-              className="grid h-10 w-10 place-items-center rounded-full border border-border bg-card text-ink transition hover:border-primary hover:text-primary disabled:opacity-40 disabled:cursor-not-allowed"
+              className="inline-flex items-center gap-2 rounded-full border border-border bg-card px-5 py-2.5 text-sm font-semibold text-ink transition hover:border-primary hover:text-primary disabled:opacity-40 disabled:cursor-not-allowed"
             >
-              <ChevronLeft className="h-4 w-4" />
+              <ChevronLeft className="h-4 w-4" /> Précédent
             </button>
-            {Array.from({ length: totalPages }, (_, i) => i + 1).map((p) => (
-              <button
-                key={p}
-                onClick={() => setPage(p)}
-                className={`grid h-10 w-10 place-items-center rounded-full text-sm font-bold transition ${
-                  p === page
-                    ? "gradient-primary text-primary-foreground shadow-glow"
-                    : "border border-border bg-card text-ink hover:border-primary hover:text-primary"
-                }`}
-              >
-                {p}
-              </button>
-            ))}
+            <span className="text-sm text-muted-foreground">Page {page} / {totalPages}</span>
             <button
               onClick={() => setPage((p) => Math.min(totalPages, p + 1))}
               disabled={page === totalPages}
-              className="grid h-10 w-10 place-items-center rounded-full border border-border bg-card text-ink transition hover:border-primary hover:text-primary disabled:opacity-40 disabled:cursor-not-allowed"
+              className="inline-flex items-center gap-2 rounded-full border border-border bg-card px-5 py-2.5 text-sm font-semibold text-ink transition hover:border-primary hover:text-primary disabled:opacity-40 disabled:cursor-not-allowed"
             >
-              <ChevronRight className="h-4 w-4" />
+              Suivant <ChevronRight className="h-4 w-4" />
             </button>
           </div>
         )}

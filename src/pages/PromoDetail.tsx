@@ -1,11 +1,14 @@
 import { useEffect, useState } from "react"
 import { useParams, Link } from "react-router-dom"
 import { fetchPromoById, type PromoItem } from "@/lib/promotions"
+import { PaymentModal } from "@/components/PaymentModal"
+import { trackPromoView } from "@/lib/tracking"
 
 export default function PromoDetail() {
   const { id } = useParams<{ id: string }>()
   const [product, setProduct] = useState<PromoItem | null>(null)
   const [loading, setLoading] = useState(true)
+  const [paymentMethod, setPaymentMethod] = useState<string | null>(null)
 
   useEffect(() => {
     if (!id) return
@@ -14,6 +17,7 @@ export default function PromoDetail() {
       setProduct(data)
       setLoading(false)
     })
+    trackPromoView(id)
   }, [id])
 
   if (loading) {
@@ -73,13 +77,28 @@ export default function PromoDetail() {
             <span className="text-xs font-bold uppercase tracking-widest text-muted-foreground">Moyens de paiement</span>
             <div className="mt-2 flex flex-wrap gap-2">
               {product.paymentMethods?.includes("mtn") && (
-                <span className="rounded-full bg-yellow-500/10 px-3 py-1.5 text-xs font-bold text-yellow-600 border border-yellow-200">MTN Mobile Money</span>
+                <button
+                  onClick={() => setPaymentMethod("mtn")}
+                  className="rounded-full bg-yellow-500/10 px-3 py-1.5 text-xs font-bold text-yellow-600 border border-yellow-200 transition hover:bg-yellow-500/20 active:scale-95"
+                >
+                  MTN Mobile Money
+                </button>
               )}
               {product.paymentMethods?.includes("airtel") && (
-                <span className="rounded-full bg-red-500/10 px-3 py-1.5 text-xs font-bold text-red-600 border border-red-200">Airtel Money</span>
+                <button
+                  onClick={() => setPaymentMethod("airtel")}
+                  className="rounded-full bg-red-500/10 px-3 py-1.5 text-xs font-bold text-red-600 border border-red-200 transition hover:bg-red-500/20 active:scale-95"
+                >
+                  Airtel Money
+                </button>
               )}
               {product.paymentMethods?.includes("visa") && (
-                <span className="rounded-full bg-blue-500/10 px-3 py-1.5 text-xs font-bold text-blue-600 border border-blue-200">VISA</span>
+                <button
+                  onClick={() => setPaymentMethod("visa")}
+                  className="rounded-full bg-blue-500/10 px-3 py-1.5 text-xs font-bold text-blue-600 border border-blue-200 transition hover:bg-blue-500/20 active:scale-95"
+                >
+                  VISA
+                </button>
               )}
             </div>
           </div>
@@ -97,6 +116,9 @@ export default function PromoDetail() {
           </a>
         </div>
       </div>
+      {paymentMethod && (
+        <PaymentModal product={product} method={paymentMethod} onClose={() => setPaymentMethod(null)} />
+      )}
     </main>
   )
 }

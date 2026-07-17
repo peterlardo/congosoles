@@ -359,3 +359,19 @@ export interface AdminStats {
   pendingStores: number
   pendingDocuments: number
 }
+
+export interface Invoice {
+  id: string
+  user_id?: string
+  client_name: string
+  client_email: string
+  description: string
+  amount: number
+  currency: string
+  status: "pending" | "paid" | "cancelled"
+  due_date?: string
+  notes?: string
+  created_at: string
+  updated_at: string
+  paid_at?: string
+}

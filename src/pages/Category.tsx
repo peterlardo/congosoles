@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react"
 import { useParams } from "react-router-dom"
-import { fetchActivePromotions, type PromoItem } from "@/lib/promotions"
+import { supabase } from "@/lib/supabase"
+import { fetchPromoById, type PromoItem } from "@/lib/promotions"
 import { ProductCard } from "@/components/ProductCard"
 
 const categoryLabels: Record<string, string> = {
@@ -18,19 +19,46 @@ const categoryLabels: Record<string, string> = {
   sport: "Sport",
 }
 
-function slugify(text: string) {
-  return text.toLowerCase().replace(/[éèêë]/g, "e").replace(/[àâä]/g, "a").replace(/[ùûü]/g, "u").replace(/[ôö]/g, "o").replace(/[îï]/g, "i").replace(/ /g, "-").replace(/[^a-z0-9-]/g, "")
-}
-
 export default function Category() {
   const { slug } = useParams<{ slug: string }>()
   const label = categoryLabels[slug || ""] || slug
   const [products, setProducts] = useState<PromoItem[]>([])
 
   useEffect(() => {
-    fetchActivePromotions().then(data => {
-      setProducts(data.filter(p => slugify(p.category) === slug))
-    })
+    async function load() {
+      const { data } = await supabase
+        .from("promotions")
+        .select("*, stores!promotions_store_id_fkey(name, slug, address, district)")
+        .eq("status", "active")
+        .eq("category", slug)
+        .order("created_at", { ascending: false })
+
+      const items: PromoItem[] = ((data as any[]) || []).map(p => {
+        const storeName = p.stores?.name || "Boutique"
+        return {
+          id: p.id,
+          title: p.title,
+          category: p.category,
+          brand: p.category,
+          store: storeName,
+          storeDistance: p.district || "Brazzaville",
+          originalPrice: Number(p.original_price) || 0,
+          discountPrice: Number(p.sale_price) || 0,
+          discountPercent: p.discount || 0,
+          image: p.image || "https://images.unsplash.com/photo-1586201375761-83865001e31c?w=600&q=70&auto=format",
+          isFlash: p.is_flash || false,
+          flashEnd: undefined,
+          location: p.district || "Brazzaville",
+          paymentMethods: p.payment_methods || ["mtn", "airtel"],
+          views: p.views || 0,
+          clicks: p.clicks || 0,
+          description: p.description || "",
+          store_slug: p.stores?.slug || "",
+        }
+      })
+      setProducts(items)
+    }
+    load()
   }, [slug])
 
   return (

@@ -6,7 +6,7 @@ import {
   ChevronRight, Bell, User, ShoppingBag, TrendingUp, Shield,
   Users, Layers, MapPin, AlertTriangle,
   MessageSquare, FileText, History, Bell as BellIcon,
-  FileSignature, Mail, CreditCard, Crown
+  FileSignature, Mail, CreditCard, Crown, Heart, BarChart3, Clock, Receipt
 } from "lucide-react"
 
 export default function DashboardLayout() {
@@ -17,11 +17,20 @@ export default function DashboardLayout() {
 
   const isAdmin = profile?.role === "super_admin" || profile?.role === "admin" || profile?.role === "moderator"
   const isSuperAdmin = profile?.role === "super_admin" || profile?.role === "admin"
+  const isClient = profile?.role === "client"
+
+  const clientLinks = [
+    { to: "/dashboard", label: "Vue d'ensemble", icon: LayoutDashboard },
+    { to: "/dashboard/client/factures", label: "Mes factures", icon: Receipt },
+    { to: "/dashboard/parametres", label: "Paramètres", icon: Settings },
+  ]
 
   const vendorLinks = [
     { to: "/dashboard", label: "Vue d'ensemble", icon: LayoutDashboard },
+    { to: "/dashboard/mes-boutiques", label: "Mes boutiques", icon: Store },
     { to: "/dashboard/promotions", label: "Mes promotions", icon: Zap },
-    { to: "/dashboard/boutique", label: "Ma boutique", icon: Store },
+    { to: "/dashboard/mes-visites", label: "Mes visites", icon: BarChart3 },
+    { to: "/dashboard/clients-favoris", label: "Mes clients favoris", icon: Heart },
     { to: "/dashboard/parametres", label: "Paramètres", icon: Settings },
   ]
 
@@ -30,11 +39,14 @@ export default function DashboardLayout() {
     { to: "/dashboard/admin/trends", label: "Tendances", icon: TrendingUp },
     { to: "/dashboard/admin/users", label: "Utilisateurs", icon: Users },
     { to: "/dashboard/admin/stores", label: "Boutiques", icon: ShoppingBag },
+    { to: "/dashboard/admin/stores-pending", label: "À valider", icon: Clock },
+    { to: "/dashboard/admin/plans", label: "Formules", icon: Crown },
     { to: "/dashboard/admin/promotions", label: "Promotions", icon: Zap },
     { to: "/dashboard/admin/categories", label: "Catégories", icon: Layers },
     { to: "/dashboard/admin/locations", label: "Localisations", icon: MapPin },
     { to: "/dashboard/admin/reports", label: "Signalements", icon: AlertTriangle },
     { to: "/dashboard/admin/cms", label: "Pages CMS", icon: FileText },
+    { to: "/dashboard/admin/invoices", label: "Factures", icon: Receipt },
     { to: "/dashboard/admin/settings", label: "Paramètres", icon: Settings },
   ]
 
@@ -48,7 +60,7 @@ export default function DashboardLayout() {
     { to: "/dashboard/admin/subscriptions", label: "Abonnements", icon: Crown },
   ]
 
-  const displayLinks = isAdmin ? sidebarLinks : vendorLinks
+  const displayLinks = isClient ? clientLinks : isAdmin ? sidebarLinks : vendorLinks
 
   const handleLogout = async () => {
     await signOut()
@@ -66,7 +78,7 @@ export default function DashboardLayout() {
         <img src="/assets/logo.png" alt="Congo Soldes" className="h-20 w-20 object-contain" style={{ filter: "brightness(0) invert(1)" }} />
         <div className="text-center">
           <div className="font-display text-sm font-bold text-white">Congo Soldes</div>
-          <div className="text-xs text-white">{isAdmin ? "Administration" : "Espace commerçant"}</div>
+          <div className="text-xs text-white">{isAdmin ? "Administration" : isClient ? "Espace client" : "Espace commerçant"}</div>
         </div>
       </div>
 

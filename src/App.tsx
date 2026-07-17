@@ -13,8 +13,15 @@ import AuthCallback from "@/pages/AuthCallback"
 import DashboardOverview from "@/pages/dashboard/Overview"
 import DashboardPromotions from "@/pages/dashboard/Promotions"
 import DashboardBoutique from "@/pages/dashboard/Boutique"
+import MesBoutiques from "@/pages/dashboard/MesBoutiques"
 import DashboardParametres from "@/pages/dashboard/Parametres"
+import MesVisites from "@/pages/dashboard/MesVisites"
+import ClientsFavoris from "@/pages/dashboard/ClientsFavoris"
+import ClientInvoices from "@/pages/dashboard/ClientInvoices"
+import AdminInvoices from "@/pages/dashboard/admin/Invoices"
 import AdminStores from "@/pages/dashboard/admin/Stores"
+import AdminStoresPending from "@/pages/dashboard/admin/StoresPending"
+import AdminPlans from "@/pages/dashboard/admin/Plans"
 import AdminAllPromotions from "@/pages/dashboard/admin/AllPromotions"
 import AdminTrends from "@/pages/dashboard/admin/Trends"
 import AdminUsers from "@/pages/dashboard/admin/Users"
@@ -30,9 +37,11 @@ import AdminActivityLog from "@/pages/dashboard/admin/ActivityLog"
 import AdminSettings from "@/pages/dashboard/admin/Settings"
 import AdminContracts from "@/pages/dashboard/admin/Contracts"
 import AdminMessaging from "@/pages/dashboard/admin/Messaging"
+import NotFound from "@/pages/NotFound"
 import Category from "@/pages/Category"
 import PromoDetail from "@/pages/PromoDetail"
 import StoreDetail from "@/pages/StoreDetail"
+import PaymentReturn from "@/pages/PaymentReturn"
 import About from "@/pages/About"
 import Blog from "@/pages/Blog"
 import Contact from "@/pages/Contact"
@@ -66,15 +75,22 @@ function App() {
               }
             >
               <Route index element={<DashboardOverview />} />
+              <Route path="mes-boutiques" element={<MesBoutiques />} />
+              <Route path="mes-visites" element={<MesVisites />} />
+              <Route path="clients-favoris" element={<ClientsFavoris />} />
+              <Route path="client/factures" element={<ClientInvoices />} />
               <Route path="promotions" element={<DashboardPromotions />} />
               <Route path="boutique" element={<DashboardBoutique />} />
               <Route path="parametres" element={<DashboardParametres />} />
               <Route path="admin/users" element={<AdminUsers />} />
               <Route path="admin/stores" element={<AdminStores />} />
+              <Route path="admin/stores-pending" element={<AdminStoresPending />} />
+              <Route path="admin/plans" element={<AdminPlans />} />
               <Route path="admin/promotions" element={<AdminAllPromotions />} />
               <Route path="admin/categories" element={<AdminCategories />} />
               <Route path="admin/locations" element={<AdminLocations />} />
               <Route path="admin/subscriptions" element={<AdminSubscriptions />} />
+              <Route path="admin/invoices" element={<AdminInvoices />} />
               <Route path="admin/payments" element={<AdminPayments />} />
               <Route path="admin/reports" element={<AdminReports />} />
               <Route path="admin/notifications" element={<AdminNotifications />} />
@@ -84,6 +100,7 @@ function App() {
               <Route path="admin/trends" element={<AdminTrends />} />
               <Route path="admin/settings" element={<AdminSettings />} />
               <Route path="admin/contracts" element={<AdminContracts />} />
+              <Route path="admin/messaging" element={<AdminMessaging />} />
             </Route>
 
             {/* Public pages - with header/footer */}
@@ -97,8 +114,10 @@ function App() {
                     <Route path="/promos" element={<Promos />} />
                     <Route path="/boutiques" element={<Boutiques />} />
                     <Route path="/categorie/:slug" element={<Category />} />
+                    <Route path="/paiement/retour" element={<PaymentReturn />} />
                     <Route path="/promo/:id" element={<PromoDetail />} />
                     <Route path="/boutique/:name" element={<StoreDetail />} />
+                    <Route path="/store/:name" element={<StoreDetail />} />
                     <Route path="/a-propos" element={<About />} />
                     <Route path="/blog" element={<Blog />} />
                     <Route path="/contact" element={<Contact />} />
@@ -110,6 +129,7 @@ function App() {
                     <Route path="/tarifs" element={<Tarifs />} />
                     <Route path="/guide-vendeur" element={<GuideVendeur />} />
                     <Route path="/publicite" element={<Publicite />} />
+                    <Route path="*" element={<NotFound />} />
                   </Routes>
                   <Footer />
                 </>

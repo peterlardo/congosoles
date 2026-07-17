@@ -37,7 +37,11 @@ export default function AdminAllPromotions() {
 
   const handleDelete = async (id: string) => {
     if (!confirm("Supprimer cette promotion ?")) return
-    await deletePromotion(id)
+    const { error } = await deletePromotion(id)
+    if (error) {
+      alert("Erreur lors de la suppression : " + error.message)
+      return
+    }
     setPromos(prev => prev.filter(p => p.id !== id))
   }
 

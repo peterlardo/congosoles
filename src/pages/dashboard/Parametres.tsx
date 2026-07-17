@@ -14,11 +14,12 @@ export default function DashboardParametres() {
   const handleUpdateProfile = async (e: React.FormEvent) => {
     e.preventDefault()
     setSaving(true)
-    const { error } = await supabase.auth.updateUser({
-      data: { name },
-    })
+    const { error: authErr } = await supabase.auth.updateUser({ data: { name } })
+    if (!authErr && user) {
+      await supabase.from("profiles").update({ name }).eq("id", user.id)
+    }
     setSaving(false)
-    if (!error) {
+    if (!authErr) {
       setSaved(true)
       setTimeout(() => setSaved(false), 2000)
     }

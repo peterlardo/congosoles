@@ -9,6 +9,7 @@ interface Store {
   name: string
   slug: string
   logo: string | null
+  banner_url: string | null
   address: string | null
   district: string | null
   created_at: string
@@ -115,11 +116,20 @@ export default function StoreDetail() {
   const decodedName = store?.name || decodedSlug
   const meta = storeMeta[decodedName] || defaultMeta
   const activePromos = products.length
+  const bannerBg = store?.banner_url
+    ? `url(${JSON.stringify(store.banner_url)})`
+    : undefined
 
   return (
     <main>
-      <section className={`relative overflow-hidden bg-gradient-to-br ${meta.gradient}`}>
-        <div className="absolute inset-0 bg-[radial-gradient(circle_at_top_right,white,transparent_55%)] opacity-10" />
+      <section className={`relative overflow-hidden ${bannerBg ? "" : `bg-gradient-to-br ${meta.gradient}`}`}>
+        {bannerBg ? (
+          <div className="absolute inset-0 bg-cover bg-center" style={{ backgroundImage: bannerBg }}>
+            <div className="absolute inset-0 bg-gradient-to-b from-black/60 via-black/40 to-black/70" />
+          </div>
+        ) : (
+          <div className="absolute inset-0 bg-[radial-gradient(circle_at_top_right,white,transparent_55%)] opacity-10" />
+        )}
         <div className="relative mx-auto max-w-7xl px-4 py-10 sm:py-14 lg:px-8 lg:py-16">
           <Link to="/boutiques" className="mb-6 inline-flex items-center gap-2 rounded-full bg-white/15 px-4 py-2 text-xs font-semibold text-white backdrop-blur transition hover:bg-white/25">
             <ArrowLeft className="h-3.5 w-3.5" />

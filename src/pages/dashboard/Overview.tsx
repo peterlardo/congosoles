@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react"
 import { useAuth } from "@/contexts/AuthContext"
 import { supabase } from "@/lib/supabase"
-import { Zap, Eye, MousePointerClick, Star, TrendingUp, Plus, ArrowUpRight, Package, ShoppingBag, Users } from "lucide-react"
+import { Zap, Eye, MousePointerClick, Star, TrendingUp, Plus, ArrowUpRight, Package, ShoppingBag, Users, Store } from "lucide-react"
 import { Link } from "react-router-dom"
 
 interface Stats {
@@ -19,11 +19,20 @@ interface RecentPromo {
   created_at: string
 }
 
+interface StoreStat {
+  id: string
+  name: string
+  promo_count: number
+  views: number
+  clicks: number
+}
+
 export default function DashboardOverview() {
   const { user, profile } = useAuth()
   const [stats, setStats] = useState<Stats>({ activePromos: 0, totalViews: 0, totalClicks: 0, avgRating: 0 })
   const [recentPromos, setRecentPromos] = useState<RecentPromo[]>([])
   const [adminStats, setAdminStats] = useState({ stores: 0, promos: 0, users: 0 })
+  const [storeStats, setStoreStats] = useState<StoreStat[]>([])
   const [loading, setLoading] = useState(true)
 
   const isAdmin = profile?.role === "super_admin" || profile?.role === "admin" || profile?.role === "moderator"
@@ -39,6 +48,48 @@ export default function DashboardOverview() {
           supabase.from("profiles").select("*", { count: "exact", head: true }),
         ])
         setAdminStats({ stores: stores || 0, promos: promos || 0, users: users || 0 })
+      }
+
+      // For vendor: fetch stores and their promo stats
+      if (!isAdmin) {
+        const { data: stores } = await supabase
+          .from("stores")
+          .select("id, name")
+          .eq("user_id", user.id)
+
+        if (stores && stores.length > 0) {
+          const storeIds = stores.map(s => s.id)
+          const { data: promos } = await supabase
+            .from("promotions")
+            .select("id, store_id, views, clicks, status")
+            .in("store_id", storeIds)
+
+          const promoCountByStore = new Map<string, number>()
+          const viewsByStore = new Map<string, number>()
+          const clicksByStore = new Map<string, number>()
+
+          for (const s of stores) {
+            promoCountByStore.set(s.id, 0)
+            viewsByStore.set(s.id, 0)
+            clicksByStore.set(s.id, 0)
+          }
+
+          for (const p of promos || []) {
+            if (promoCountByStore.has(p.store_id)) {
+              promoCountByStore.set(p.store_id, (promoCountByStore.get(p.store_id) || 0) + 1)
+              viewsByStore.set(p.store_id, (viewsByStore.get(p.store_id) || 0) + (p.views || 0))
+              clicksByStore.set(p.store_id, (clicksByStore.get(p.store_id) || 0) + (p.clicks || 0))
+            }
+          }
+
+          setStoreStats(stores.map(s => ({
+            id: s.id,
+            name: s.name,
+            promo_count: promoCountByStore.get(s.id) || 0,
+            views: viewsByStore.get(s.id) || 0,
+            clicks: clicksByStore.get(s.id) || 0,
+          })))
+        }
       }
 
       const query = supabase
@@ -108,6 +159,35 @@ export default function DashboardOverview() {
           </div>
         ))}
       </div>
+
+      {!isAdmin && storeStats.length > 0 && (
+        <div>
+          <h2 className="font-display text-lg font-bold text-ink">Vos boutiques</h2>
+          <div className="mt-3 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+            {storeStats.map(store => (
+              <Link
+                key={store.id}
+                to={`/dashboard/boutique?storeId=${store.id}`}
+                className="rounded-2xl border border-border/60 bg-card p-5 shadow-card transition hover:-translate-y-0.5 hover:shadow-lift"
+              >
+                <div className="flex items-center gap-3">
+                  <div className="grid h-10 w-10 place-items-center rounded-xl bg-primary/10 text-primary">
+                    <Store className="h-5 w-5" />
+                  </div>
+                  <div className="min-w-0 flex-1">
+                    <div className="truncate font-semibold text-ink">{store.name}</div>
+                    <div className="text-xs text-muted-foreground">{store.promo_count} promotion{store.promo_count > 1 ? "s" : ""}</div>
+                  </div>
+                </div>
+                <div className="mt-3 flex items-center gap-4 text-xs text-muted-foreground">
+                  <span className="flex items-center gap-1"><Eye className="h-3 w-3" />{store.views} vues</span>
+                  <span className="flex items-center gap-1"><MousePointerClick className="h-3 w-3" />{store.clicks} clics</span>
+                </div>
+              </Link>
+            ))}
+          </div>
+        </div>
+      )}
 
       <div className="flex items-center justify-between">
         <h2 className="font-display text-lg font-bold text-ink">Dernières promotions</h2>

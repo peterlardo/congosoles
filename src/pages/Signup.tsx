@@ -16,6 +16,10 @@ export default function Signup() {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
     setError("")
+    if (!email.trim() || !password.trim() || !name.trim()) {
+      setError("Veuillez remplir tous les champs")
+      return
+    }
     setLoading(true)
     const { error } = await signUp(email, password, name)
     setLoading(false)

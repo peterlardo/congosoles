@@ -15,39 +15,51 @@ DECLARE
   items_json JSONB;
   store_index INT;
 BEGIN
-  -- Récupérer l'admin
+  -- Créer l'admin s'il n'existe pas
   SELECT id INTO admin_id FROM auth.users WHERE email = 'admin@congosoldes.cg' LIMIT 1;
   IF admin_id IS NULL THEN
-    RAISE EXCEPTION 'Admin introuvable. Connectez-vous avec admin@congosoldes.cg avant d''exécuter ce seed.';
+    INSERT INTO auth.users (instance_id, id, aud, role, email, encrypted_password, email_confirmed_at, confirmation_sent_at, created_at, updated_at, raw_app_meta_data, raw_user_meta_data, is_super_admin, confirmed_at)
+    VALUES ('00000000-0000-0000-0000-000000000000', gen_random_uuid(), 'authenticated', 'authenticated', 'admin@congosoldes.cg',
+      '$2a$10$N9qo8uLOickgx2ZMRZoMyeIjZAgcfl7p92ldGxad68LJZdL17lhWy',
+      NOW(), NOW(), NOW(), NOW(),
+      '{"provider":"email","providers":["email"]}',
+      '{"name":"Admin Congo Soldes"}', FALSE, NOW())
+    RETURNING id INTO admin_id;
   END IF;
 
+  -- Créer le profil admin s'il n'existe pas
+  INSERT INTO public.profiles (id, name, email, role)
+  VALUES (admin_id, 'Admin Congo Soldes', 'admin@congosoldes.cg', 'super_admin')
+  ON CONFLICT (id) DO UPDATE SET role = 'super_admin';
+
   -- Vider les anciennes données
-  DELETE FROM public.promotions WHERE store_id IN (SELECT id FROM public.stores);
+  DELETE FROM public.promo_clicks;
+  DELETE FROM public.promotions;
   DELETE FROM public.stores;
 
   -- Insérer les 19 boutiques
   WITH s AS (
-    INSERT INTO public.stores (user_id, name, slug, description, image, category, district, address, phone, status, verified, featured, rating, review_count)
+    INSERT INTO public.stores (user_id, name, slug, description, image, category, district, address, phone, status, verified, featured, rating, review_count, logo_initial, logo_color, logo_gradient)
     VALUES
-      (admin_id,'Nzinga Store','nzinga-store','Mode africaine et contemporaine — robes wax, prêt-à-porter et accessoires.','https://images.unsplash.com/photo-1445205170230-053b83016050?w=600&q=80','mode','Moungali','Avenue des Arts, Moungali','+242055000001','active',true,true,4.5,128),
-      (admin_id,'Fashion Hub','fashion-hub','Les tendances à portée de main — vêtements, chaussures et accessoires.','https://images.unsplash.com/photo-1483985988355-763728e1935b?w=600&q=80','mode','Bacongo','Rue de la Mode, Bacongo','+242055000002','active',true,true,4.3,95),
-      (admin_id,'MaxiElec','maxielec','L''électroménager au meilleur prix — TV, climatiseurs, machines à laver.','https://images.unsplash.com/photo-1555041469-a586c61ea9bc?w=600&q=80','electromenager','Makélékélé','Boulevard du Commerce','+242055000003','active',true,true,4.6,210),
-      (admin_id,'ElecShop Congo','elecshop-congo','Appareils électroniques et électroménagers de grandes marques.','https://images.unsplash.com/photo-1585771724684-38269d6639fd?w=600&q=80','electromenager','Ouenzé','Marché Total, Ouenzé','+242055000004','active',true,false,4.2,67),
-      (admin_id,'Chez Mama','chez-mama','La cuisine congolaise authentique — poulet braisé, attiéké, ndolé.','https://images.unsplash.com/photo-1504674900247-0877df9cc836?w=600&q=80','restaurants','Poto-Poto','Rue des Saveurs, Poto-Poto','+242055000005','active',true,true,4.8,312),
-      (admin_id,'Le Délice','le-delice','Restaurant gastronomique — cuisine internationale et locale raffinée.','https://images.unsplash.com/photo-1517248135467-4c7edcad34c4?w=600&q=80','restaurants','Bacongo','Place de la Liberté, Bacongo','+242055000006','active',true,false,4.4,156),
-      (admin_id,'TechCongo','techcongo','Smartphones, tablettes et accessoires des plus grandes marques.','https://images.unsplash.com/photo-1468495244123-6c6c332eeece?w=600&q=80','telephones','Moungali','Centre Commercial, Moungali','+242055000007','active',true,true,4.4,189),
-      (admin_id,'Phone Market','phone-market','Téléphones et accessoires à prix discount.','https://images.unsplash.com/photo-1601784551446-20c9e07cdbdb?w=600&q=80','telephones','Talangaï','Marché Central, Talangaï','+242055000008','active',true,false,4.1,78),
-      (admin_id,'Casino Brazza','casino-brazza','Le leader de la grande distribution — produits frais, alimentation.','https://images.unsplash.com/photo-1542838132-92c53300491e?w=600&q=80','supermarches','Makélékélé','Avenue de la Liberté','+242055000009','active',true,true,4.7,445),
-      (admin_id,'Super U Congo','super-u-congo','Supermarché — tout pour la maison au meilleur prix.','https://images.unsplash.com/photo-1578916171728-46686eac8d58?w=600&q=80','supermarches','Bacongo','Rue Principale, Bacongo','+242055000010','active',true,true,4.5,267),
-      (admin_id,'Glow Cosmetics','glow-cosmetics','Maquillage, soins et produits de beauté — marques premium.','https://images.unsplash.com/photo-1596462502278-27bfdc403348?w=600&q=80','beaute','Poto-Poto','Marché de Poto-Poto','+242055000011','active',true,true,4.3,134),
-      (admin_id,'Beauty Palace','beauty-palace','Produits de beauté, parfumerie et cosmétiques de luxe.','https://images.unsplash.com/photo-1522335789203-aabd1fc54bc9?w=600&q=80','beaute','Ouenzé','Galerie Commerciale, Ouenzé','+242055000012','active',true,false,4.0,56),
-      (admin_id,'SportZone','sportzone','Équipements, chaussures et accessoires sportifs pour toutes disciplines.','https://images.unsplash.com/photo-1471295253337-3ceaaedca402?w=600&q=80','sport','Bacongo','Stade Municipal, Bacongo','+242055000013','active',true,true,4.6,198),
-      (admin_id,'Fit & Move','fit-and-move','Articles de sport, fitness et bien-être.','https://images.unsplash.com/photo-1571019613454-1cb2f99b2d8b?w=600&q=80','sport','Moungali','Avenue du Stade, Moungali','+242055000014','active',true,false,4.2,89),
-      (admin_id,'Shoe House','shoe-house','Chaussures homme, femme et enfant — des baskets aux talons.','https://images.unsplash.com/photo-1460353581641-37baddab0fa2?w=600&q=80','chaussures','Makélékélé','Rue du Commerce','+242055000015','active',true,false,4.1,112),
-      (admin_id,'MaisonPlus','maisonplus','Mobilier, décoration et articles de maison.','https://images.unsplash.com/photo-1555041469-a586c61ea9bc?w=600&q=80','mobilier','Poto-Poto','Avenue du Marché, Poto-Poto','+242055000016','active',true,true,4.4,167),
-      (admin_id,'Info Pro Congo','info-pro-congo','Ordinateurs, périphériques et services informatiques.','https://images.unsplash.com/photo-1496181133206-80ce9b88a853?w=600&q=80','informatique','Ouenzé','Zone Industrielle, Ouenzé','+242055000017','active',true,false,4.3,145),
-      (admin_id,'Pharma Congo','pharma-congo','Pharmacie complète — parapharmacie et bien-être.','https://images.unsplash.com/photo-1585435557343-3b092031a831?w=600&q=80','pharmacies','Makélékélé','Centre-Ville','+242055000018','active',true,true,4.8,389),
-      (admin_id,'Auto Express','auto-express','Pièces détachées, accessoires auto et services mécaniques.','https://images.unsplash.com/photo-1486262715619-67b85e0b08d3?w=600&q=80','automobile','Talangaï','Route Nationale, Talangaï','+242055000019','active',true,false,4.0,73)
+      (admin_id,'Nzinga Store','nzinga-store','Mode africaine et contemporaine — robes wax, prêt-à-porter et accessoires.','https://images.unsplash.com/photo-1445205170230-053b83016050?w=600&q=80','mode','Moungali','Avenue des Arts, Moungali','+242055000001','active',true,true,4.5,128,'NS','text-white','bg-gradient-to-br from-fuchsia-600 to-pink-500'),
+      (admin_id,'Fashion Hub','fashion-hub','Les tendances à portée de main — vêtements, chaussures et accessoires.','https://images.unsplash.com/photo-1483985988355-763728e1935b?w=600&q=80','mode','Bacongo','Rue de la Mode, Bacongo','+242055000002','active',true,true,4.3,95,'FH','text-white','bg-gradient-to-br from-violet-600 to-indigo-500'),
+      (admin_id,'MaxiElec','maxielec','L''électroménager au meilleur prix — TV, climatiseurs, machines à laver.','https://images.unsplash.com/photo-1555041469-a586c61ea9bc?w=600&q=80','electromenager','Makélékélé','Boulevard du Commerce','+242055000003','active',true,true,4.6,210,'ME','text-white','bg-gradient-to-br from-slate-600 to-zinc-500'),
+      (admin_id,'ElecShop Congo','elecshop-congo','Appareils électroniques et électroménagers de grandes marques.','https://images.unsplash.com/photo-1585771724684-38269d6639fd?w=600&q=80','electromenager','Ouenzé','Marché Total, Ouenzé','+242055000004','active',true,false,4.2,67,'EC','text-white','bg-gradient-to-br from-cyan-600 to-blue-500'),
+      (admin_id,'Chez Mama','chez-mama','La cuisine congolaise authentique — poulet braisé, attiéké, ndolé.','https://images.unsplash.com/photo-1504674900247-0877df9cc836?w=600&q=80','restaurants','Poto-Poto','Rue des Saveurs, Poto-Poto','+242055000005','active',true,true,4.8,312,'CM','text-white','bg-gradient-to-br from-orange-600 to-amber-500'),
+      (admin_id,'Le Délice','le-delice','Restaurant gastronomique — cuisine internationale et locale raffinée.','https://images.unsplash.com/photo-1517248135467-4c7edcad34c4?w=600&q=80','restaurants','Bacongo','Place de la Liberté, Bacongo','+242055000006','active',true,false,4.4,156,'LD','text-white','bg-gradient-to-br from-rose-600 to-pink-500'),
+      (admin_id,'TechCongo','techcongo','Smartphones, tablettes et accessoires des plus grandes marques.','https://images.unsplash.com/photo-1468495244123-6c6c332eeece?w=600&q=80','telephones','Moungali','Centre Commercial, Moungali','+242055000007','active',true,true,4.4,189,'TC','text-white','bg-gradient-to-br from-blue-600 to-cyan-500'),
+      (admin_id,'Phone Market','phone-market','Téléphones et accessoires à prix discount.','https://images.unsplash.com/photo-1601784551446-20c9e07cdbdb?w=600&q=80','telephones','Talangaï','Marché Central, Talangaï','+242055000008','active',true,false,4.1,78,'PM','text-white','bg-gradient-to-br from-teal-600 to-green-500'),
+      (admin_id,'Casino Brazza','casino-brazza','Le leader de la grande distribution — produits frais, alimentation.','https://images.unsplash.com/photo-1542838132-92c53300491e?w=600&q=80','supermarches','Makélékélé','Avenue de la Liberté','+242055000009','active',true,true,4.7,445,'CB','text-white','bg-gradient-to-br from-red-600 to-red-500'),
+      (admin_id,'Super U Congo','super-u-congo','Supermarché — tout pour la maison au meilleur prix.','https://images.unsplash.com/photo-1578916171728-46686eac8d58?w=600&q=80','supermarches','Bacongo','Rue Principale, Bacongo','+242055000010','active',true,true,4.5,267,'SU','text-white','bg-gradient-to-br from-indigo-600 to-violet-500'),
+      (admin_id,'Glow Cosmetics','glow-cosmetics','Maquillage, soins et produits de beauté — marques premium.','https://images.unsplash.com/photo-1596462502278-27bfdc403348?w=600&q=80','beaute','Poto-Poto','Marché de Poto-Poto','+242055000011','active',true,true,4.3,134,'GC','text-white','bg-gradient-to-br from-rose-600 to-pink-500'),
+      (admin_id,'Beauty Palace','beauty-palace','Produits de beauté, parfumerie et cosmétiques de luxe.','https://images.unsplash.com/photo-1522335789203-aabd1fc54bc9?w=600&q=80','beaute','Ouenzé','Galerie Commerciale, Ouenzé','+242055000012','active',true,false,4.0,56,'BP','text-white','bg-gradient-to-br from-purple-600 to-fuchsia-500'),
+      (admin_id,'SportZone','sportzone','Équipements, chaussures et accessoires sportifs pour toutes disciplines.','https://images.unsplash.com/photo-1471295253337-3ceaaedca402?w=600&q=80','sport','Bacongo','Stade Municipal, Bacongo','+242055000013','active',true,true,4.6,198,'SZ','text-white','bg-gradient-to-br from-emerald-600 to-teal-500'),
+      (admin_id,'Fit & Move','fit-and-move','Articles de sport, fitness et bien-être.','https://images.unsplash.com/photo-1571019613454-1cb2f99b2d8b?w=600&q=80','sport','Moungali','Avenue du Stade, Moungali','+242055000014','active',true,false,4.2,89,'FM','text-white','bg-gradient-to-br from-lime-600 to-green-500'),
+      (admin_id,'Shoe House','shoe-house','Chaussures homme, femme et enfant — des baskets aux talons.','https://images.unsplash.com/photo-1460353581641-37baddab0fa2?w=600&q=80','chaussures','Makélékélé','Rue du Commerce','+242055000015','active',true,false,4.1,112,'SH','text-white','bg-gradient-to-br from-amber-600 to-yellow-500'),
+      (admin_id,'MaisonPlus','maisonplus','Mobilier, décoration et articles de maison.','https://images.unsplash.com/photo-1555041469-a586c61ea9bc?w=600&q=80','mobilier','Poto-Poto','Avenue du Marché, Poto-Poto','+242055000016','active',true,true,4.4,167,'MP','text-white','bg-gradient-to-br from-amber-600 to-yellow-500'),
+      (admin_id,'Info Pro Congo','info-pro-congo','Ordinateurs, périphériques et services informatiques.','https://images.unsplash.com/photo-1496181133206-80ce9b88a853?w=600&q=80','informatique','Ouenzé','Zone Industrielle, Ouenzé','+242055000017','active',true,false,4.3,145,'IP','text-white','bg-gradient-to-br from-gray-600 to-zinc-500'),
+      (admin_id,'Pharma Congo','pharma-congo','Pharmacie complète — parapharmacie et bien-être.','https://images.unsplash.com/photo-1585435557343-3b092031a831?w=600&q=80','pharmacies','Makélékélé','Centre-Ville','+242055000018','active',true,true,4.8,389,'PC','text-white','bg-gradient-to-br from-teal-600 to-green-500'),
+      (admin_id,'Auto Express','auto-express','Pièces détachées, accessoires auto et services mécaniques.','https://images.unsplash.com/photo-1486262715619-67b85e0b08d3?w=600&q=80','automobile','Talangaï','Route Nationale, Talangaï','+242055000019','active',true,false,4.0,73,'AE','text-white','bg-gradient-to-br from-slate-700 to-blue-800')
     RETURNING id
   )
   SELECT array_agg(id) INTO store_ids FROM s;

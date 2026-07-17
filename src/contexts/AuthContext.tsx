@@ -50,17 +50,25 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   }, [])
 
   async function fetchProfile(userId: string) {
-    const { data } = await supabase
-      .from("profiles")
-      .select("*")
-      .eq("id", userId)
-      .single()
-    setProfile(data as Profile | null)
+    try {
+      const { data } = await supabase
+        .from("profiles")
+        .select("*")
+        .eq("id", userId)
+        .single()
+      setProfile(data as Profile | null)
+    } catch {
+      setProfile(null)
+    }
   }
 
   const signIn = async (email: string, password: string) => {
-    const { error } = await supabase.auth.signInWithPassword({ email, password })
-    return { error }
+    try {
+      const { error } = await supabase.auth.signInWithPassword({ email, password })
+      return { error }
+    } catch (e) {
+      return { error: e as any }
+    }
   }
 
   const signUp = async (email: string, password: string, name: string) => {

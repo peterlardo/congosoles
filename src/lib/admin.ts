@@ -4,7 +4,7 @@ import type {
   District, Neighborhood, SubscriptionPlan, Subscription, Payment,
   SponsoredCampaign, Banner, Review, Report, Notification, CMSPage,
   ActivityLog, SupportTicket, PlatformSetting, StoreDocument, AdminStats,
-  ContractTemplate, Contract
+  ContractTemplate, Contract, Invoice
 } from "@/types/admin"
 
 async function fetchProfilesMap(userIds: string[]): Promise<Map<string, { email: string; name: string }>> {
@@ -532,4 +532,29 @@ export async function fetchAdminStats(): Promise<AdminStats> {
     pendingStores: pendingStores || 0,
     pendingDocuments: pendingDocuments || 0,
   }
+}
+
+export async function fetchInvoices(): Promise<Invoice[]> {
+  const { data } = await supabase.from("invoices").select("*").order("created_at", { ascending: false })
+  return (data as any[]) || []
+}
+
+export async function createInvoice(invoice: Partial<Invoice> & { client_name: string; client_email: string; description: string; amount: number }) {
+  const { data, error } = await supabase.from("invoices").insert(invoice).select("id").single()
+  if (!error && data) await logActivity("create_invoice", "invoice", data.id, { amount: invoice.amount, client: invoice.client_email })
+  return { data, error }
+}
+
+export async function updateInvoiceStatus(invoiceId: string, status: string) {
+  const payload: any = { status }
+  if (status === "paid") payload.paid_at = new Date().toISOString()
+  const { error } = await supabase.from("invoices").update(payload).eq("id", invoiceId)
+  if (!error) await logActivity("update_invoice_status", "invoice", invoiceId, { status })
+  return { error }
+}
+
+export async function deleteInvoice(invoiceId: string) {
+  const { error } = await supabase.from("invoices").delete().eq("id", invoiceId)
+  if (!error) await logActivity("delete_invoice", "invoice", invoiceId)
+  return { error }
 }

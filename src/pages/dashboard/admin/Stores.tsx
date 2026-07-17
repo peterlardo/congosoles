@@ -49,7 +49,11 @@ export default function AdminStores() {
   }
 
   const handleDelete = async (id: string) => {
-    await deleteStore(id)
+    const { error } = await deleteStore(id)
+    if (error) {
+      alert("Erreur lors de la suppression : " + error.message)
+      return
+    }
     setStores(prev => prev.filter(s => s.id !== id))
     setDeleteModal(null)
     if (editing?.id === id) setEditing(null)

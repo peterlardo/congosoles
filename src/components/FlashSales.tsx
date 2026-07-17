@@ -8,7 +8,7 @@ export function FlashSales() {
   const [items, setItems] = useState<PromoItem[]>([])
 
   useEffect(() => {
-    fetchActivePromotions().then(data => setItems(data.filter(p => p.isFlash)))
+    fetchActivePromotions().then(data => setItems(data.filter(p => p.isFlash && p.flashEnd)))
   }, [])
 
   if (items.length === 0) return null

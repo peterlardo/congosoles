@@ -15,6 +15,10 @@ export default function Login() {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
     setError("")
+    if (!email.trim() || !password.trim()) {
+      setError("Veuillez remplir tous les champs")
+      return
+    }
     setLoading(true)
     const { error } = await signIn(email, password)
     setLoading(false)

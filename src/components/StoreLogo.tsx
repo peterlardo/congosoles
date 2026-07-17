@@ -1,7 +1,12 @@
-import type { Store } from "@/lib/data"
+interface StoreLogoStore {
+  logoInitial: string
+  logoGradient: string
+  logoColor: string
+  category: string
+}
 
 interface StoreLogoProps {
-  store: Store
+  store: StoreLogoStore
   size?: "sm" | "md" | "lg" | "xl"
 }
 
